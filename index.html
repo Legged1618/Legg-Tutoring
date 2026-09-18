@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Legg Tutoring — Math Tutoring</title>
+<title>Legg Tutoring</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -262,6 +262,98 @@
 
   .about-box strong { color: var(--ink); }
 
+  /* Booking widget */
+  .booking-card {
+    background: var(--card);
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    padding: 28px;
+    max-width: 620px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .booking-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  #cal-inline {
+    width: 100%;
+    height: 600px;
+    overflow: auto;
+  }
+
+  /* Placeholder images (swap these out later) */
+  .img-placeholder {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--card),
+      var(--card) 10px,
+      #EFEAE0 10px,
+      #EFEAE0 20px
+    );
+    border: 1.5px dashed var(--rule);
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px;
+  }
+
+  .avatar-placeholder {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    margin: 0 auto 18px;
+  }
+
+  .about-photo-placeholder {
+    width: 220px;
+    height: 220px;
+    border-radius: 8px;
+    margin: 0 auto 28px;
+  }
+
+  /* Media bulletin */
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+
+  @media (max-width: 780px) {
+    .media-grid { grid-template-columns: 1fr; }
+  }
+
+  .media-card {
+    background: var(--card);
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--brass);
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .media-card .img-placeholder {
+    height: 130px;
+    border: none;
+    border-bottom: 1.5px dashed var(--rule);
+  }
+
+  .media-card-body {
+    padding: 22px 22px 26px;
+  }
+
+  .media-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+  .media-card p { color: var(--ink-soft); font-size: 0.92rem; }
+
   footer {
     padding: 26px 28px 34px;
     text-align: center;
@@ -281,23 +373,56 @@
 
 <section class="slide slide-hero" id="hero">
   <div class="wrap hero-columns">
-    <h1 class="hero-feature">Personalized Math Help</h1>
-    <p class="lede">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent nec dui eget velit sodales tincidunt.</p>
+    <h1 class="hero-feature">Mathematics, Personalized</h1>
+    <p class="lede">With Legg Tutoring, recieve help that suits your needs. I work on areas that students are struggling in. Catch up and show out.</p>
     <div class="contact-card">
+      <div class="img-placeholder avatar-placeholder">Your photo</div>
       <h3>Get in touch</h3>
       <div class="contact-line">
         <span class="label">Email</span>
         <span class="value">ed@leggtutoring.com</span>
       </div>
-      <div class="contact-line">
-        <span class="label">Phone</span>
-        <span class="value placeholder">(XXX) XXX-XXXX</span>
-      </div>
+    </div>
+    <div class="booking-card">
+      <h3>Book a free consultation call</h3>
+      <div id="cal-inline"></div>
     </div>
   </div>
   <div class="scroll-cue">
     <svg width="14" height="9" viewBox="0 0 16 10" xmlns="http://www.w3.org/2000/svg"><path d="M1 1l7 7 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Subjects &amp; levels
+  </div>
+</section>
+
+<section class="slide" id="media">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Math &amp; Education, Worth a Look</h2>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    </div>
+    <div class="media-grid">
+      <div class="media-card">
+        <div class="img-placeholder">Media image</div>
+        <div class="media-card-body">
+          <h3>Lorem ipsum dolor sit</h3>
+          <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.</p>
+        </div>
+      </div>
+      <div class="media-card">
+        <div class="img-placeholder">Media image</div>
+        <div class="media-card-body">
+          <h3>Consectetur adipiscing</h3>
+          <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.</p>
+        </div>
+      </div>
+      <div class="media-card">
+        <div class="img-placeholder">Media image</div>
+        <div class="media-card-body">
+          <h3>Sed do eiusmod tempor</h3>
+          <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -331,6 +456,7 @@
       <span class="section-number">02</span>
       <h2>About your tutor</h2>
     </div>
+    <div class="img-placeholder about-photo-placeholder">Your photo</div>
     <div class="about-box">
       <p><strong>Lorem ipsum dolor sit amet.</strong> Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
     </div>
@@ -340,6 +466,48 @@
 <footer>
   &copy; 2026 Legg Tutoring
 </footer>
+
+<script type="text/javascript">
+  (function (C, A, L) {
+    let p = function (a, ar) { a.q.push(ar); };
+    let d = C.document;
+    C.Cal = C.Cal || function () {
+      let cal = C.Cal;
+      let ar = arguments;
+      if (!cal.loaded) {
+        cal.ns = {};
+        cal.q = cal.q || [];
+        d.head.appendChild(d.createElement("script")).src = A;
+        cal.loaded = true;
+      }
+      if (ar[0] === L) {
+        const api = function () { p(api, arguments); };
+        const namespace = ar[1];
+        api.q = api.q || [];
+        if (typeof namespace === "string") {
+          cal.ns[namespace] = cal.ns[namespace] || api;
+          p(cal.ns[namespace], ar);
+          p(cal, ["initNamespace", namespace]);
+        } else p(cal, ar);
+        return;
+      }
+      p(cal, ar);
+    };
+  })(window, "https://app.cal.com/embed/embed.js", "init");
+
+  Cal("init", "15-minute-consultation-call", { origin: "https://cal.com" });
+
+  Cal.ns["15-minute-consultation-call"]("inline", {
+    elementOrSelector: "#cal-inline",
+    config: { layout: "month_view" },
+    calLink: "leggtutoring/15-minute-consultation-call",
+  });
+
+  Cal.ns["15-minute-consultation-call"]("ui", {
+    hideEventTypeDetails: false,
+    layout: "month_view",
+  });
+</script>
 
 </body>
 </html>
