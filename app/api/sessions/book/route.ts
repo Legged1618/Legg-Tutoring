@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { getOrCreateClientForUser } from "@/lib/clients";
 import { stripe } from "@/lib/stripe";
 import { PRICING } from "@/lib/pricing";
 
@@ -14,13 +15,9 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
-  const { data: client } = await admin
-    .from("clients")
-    .select("approved")
-    .eq("id", user.id)
-    .maybeSingle();
+  const client = await getOrCreateClientForUser(admin, user);
 
-  if (!client?.approved) {
+  if (!client.approved) {
     return NextResponse.json(
       { error: "Your account isn't approved for booking yet." },
       { status: 403 }
@@ -58,7 +55,7 @@ export async function POST(request: Request) {
   const { data: session, error: insertError } = await admin
     .from("sessions")
     .insert({
-      client_id: user.id,
+      client_id: client.id,
       type,
       status: type === "virtual" ? "pending_payment" : "scheduled",
       scheduled_at: sessionStart.toISOString(),

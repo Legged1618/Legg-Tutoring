@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { getOrCreateClientForUser } from "@/lib/clients";
 import { stripe } from "@/lib/stripe";
 import { computeRefundCents, type CancelledBy } from "@/lib/pricing";
 
@@ -31,7 +32,12 @@ export async function POST(
   const isTutor = Boolean(
     process.env.TUTOR_EMAIL && user.email === process.env.TUTOR_EMAIL
   );
-  const isOwningClient = session.client_id === user.id;
+
+  let isOwningClient = false;
+  if (!isTutor) {
+    const client = await getOrCreateClientForUser(admin, user);
+    isOwningClient = session.client_id === client.id;
+  }
 
   if (!isTutor && !isOwningClient) {
     return NextResponse.json({ error: "Not your session." }, { status: 403 });

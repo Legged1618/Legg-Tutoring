@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { getOrCreateClientForUser } from "@/lib/clients";
 
 export default async function PortalDashboard() {
   const supabase = await createClient();
@@ -14,25 +14,13 @@ export default async function PortalDashboard() {
   }
 
   const admin = createAdminClient();
-
-  // First login after the tutor invites someone: create their client row.
-  // `approved` defaults to false until the tutor flips it after the consult.
-  const { data: existing } = await admin
-    .from("clients")
-    .select("id, approved, full_name")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!existing) {
-    await admin.from("clients").insert({ id: user.id, approved: false });
-  }
-
-  const approved = existing?.approved ?? false;
+  const client = await getOrCreateClientForUser(admin, user);
+  const approved = client.approved;
 
   const { data: sessions } = await admin
     .from("sessions")
     .select("*")
-    .eq("client_id", user.id)
+    .eq("client_id", client.id)
     .order("scheduled_at", { ascending: true });
 
   return (
