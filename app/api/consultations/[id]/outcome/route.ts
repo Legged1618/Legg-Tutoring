@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { setClientApproval } from "@/lib/clients";
 
 export async function POST(
   request: Request,
@@ -41,20 +42,15 @@ export async function POST(
     .update({ outcome, status: "completed" })
     .eq("id", id);
 
-  if (outcome === "good_fit") {
-    await admin
-      .from("clients")
-      .upsert(
-        {
-          email: consultation.email,
-          full_name: consultation.full_name,
-          phone: consultation.phone,
-          approved: true,
-          approved_at: new Date().toISOString(),
-        },
-        { onConflict: "email" }
-      );
-  }
+  // Every consultation is auto-approved at booking time already; this is
+  // just the tutor's ability to revoke access if it turns out not to be a
+  // fit after all (or re-affirm it after reconsidering).
+  await setClientApproval(admin, {
+    email: consultation.email,
+    fullName: consultation.full_name,
+    phone: consultation.phone,
+    approved: outcome === "good_fit",
+  });
 
   const redirectUrl = new URL("/portal/admin", request.url);
   return NextResponse.redirect(redirectUrl, { status: 303 });

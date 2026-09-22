@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { BOOKING_WINDOW_DAYS, isSlotStillAvailable } from "@/lib/availability";
+import { setClientApproval } from "@/lib/clients";
 import {
   sendConsultationConfirmationToClient,
   sendConsultationNoticeToTutor,
@@ -78,6 +79,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not book the consultation." }, { status: 500 });
   }
 
+  // Every consultation is auto-approved immediately -- no manual review gate
+  // before someone can log in. The tutor can still revoke this from
+  // /portal/admin after the call if it turns out not to be a fit.
+  await setClientApproval(admin, {
+    email: consultation.email,
+    fullName: consultation.full_name,
+    phone: consultation.phone,
+    approved: true,
+  });
+
   const details = {
     id: consultation.id,
     fullName: consultation.full_name,
@@ -88,9 +99,11 @@ export async function POST(request: Request) {
     scheduledAt: new Date(consultation.scheduled_at),
   };
 
+  const origin = new URL(request.url).origin;
+
   try {
     await Promise.all([
-      sendConsultationConfirmationToClient(details),
+      sendConsultationConfirmationToClient(details, origin),
       sendConsultationNoticeToTutor(details),
     ]);
   } catch (err) {

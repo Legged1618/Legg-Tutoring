@@ -40,7 +40,10 @@ export default async function AdminPage() {
     <div className="portal-shell wrap">
       <div className="section-head">
         <h2>Consultations</h2>
-        <p>Mark each call once it's happened.</p>
+        <p>
+          Everyone is auto-approved for portal access when they book. Mark
+          &quot;Not a fit&quot; after a call to revoke that.
+        </p>
       </div>
 
       <div className="session-list">

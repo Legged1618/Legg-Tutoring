@@ -54,3 +54,24 @@ export async function getOrCreateClientForUser(
 
   return created as ClientRow;
 }
+
+/**
+ * Grants (or revokes) portal access for an email. Every consultation is
+ * auto-approved at booking time -- the tutor only needs this to revoke
+ * access later if a "good fit" turns out not to be one.
+ */
+export async function setClientApproval(
+  admin: SupabaseClient,
+  params: { email: string; fullName?: string | null; phone?: string | null; approved: boolean }
+) {
+  await admin.from("clients").upsert(
+    {
+      email: params.email,
+      full_name: params.fullName ?? undefined,
+      phone: params.phone ?? undefined,
+      approved: params.approved,
+      approved_at: params.approved ? new Date().toISOString() : null,
+    },
+    { onConflict: "email" }
+  );
+}
