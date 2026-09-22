@@ -1,0 +1,102 @@
+import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/server";
+import { BOOKING_WINDOW_DAYS, isSlotStillAvailable } from "@/lib/availability";
+import {
+  sendConsultationConfirmationToClient,
+  sendConsultationNoticeToTutor,
+} from "@/lib/email";
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { fullName, email, phone, subject, notes, scheduledAt } = body as {
+    fullName: string;
+    email: string;
+    phone?: string;
+    subject?: string;
+    notes?: string;
+    scheduledAt: string;
+  };
+
+  if (!fullName || !email || !scheduledAt) {
+    return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+  }
+
+  const slot = new Date(scheduledAt);
+  if (Number.isNaN(slot.getTime())) {
+    return NextResponse.json({ error: "Invalid time." }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+  const now = new Date();
+  const windowEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
+
+  const { data: booked, error: fetchError } = await admin
+    .from("consultations")
+    .select("scheduled_at")
+    .eq("status", "scheduled")
+    .gte("scheduled_at", now.toISOString())
+    .lte("scheduled_at", windowEnd.toISOString());
+
+  if (fetchError) {
+    return NextResponse.json({ error: "Could not check availability." }, { status: 500 });
+  }
+
+  const bookedEpochMs = new Set<number>(
+    ((booked ?? []) as { scheduled_at: string }[]).map((row) =>
+      new Date(row.scheduled_at).getTime()
+    )
+  );
+
+  if (!isSlotStillAvailable(slot, bookedEpochMs, now)) {
+    return NextResponse.json(
+      { error: "That time isn't available anymore. Please pick another." },
+      { status: 409 }
+    );
+  }
+
+  const { data: consultation, error: insertError } = await admin
+    .from("consultations")
+    .insert({
+      full_name: fullName,
+      email,
+      phone: phone || null,
+      subject: subject || null,
+      notes: notes || null,
+      scheduled_at: slot.toISOString(),
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    // Unique violation on scheduled_at = someone else grabbed it a moment ago.
+    if ((insertError as { code?: string }).code === "23505") {
+      return NextResponse.json(
+        { error: "That time isn't available anymore. Please pick another." },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: "Could not book the consultation." }, { status: 500 });
+  }
+
+  const details = {
+    id: consultation.id,
+    fullName: consultation.full_name,
+    email: consultation.email,
+    phone: consultation.phone,
+    subject: consultation.subject,
+    notes: consultation.notes,
+    scheduledAt: new Date(consultation.scheduled_at),
+  };
+
+  try {
+    await Promise.all([
+      sendConsultationConfirmationToClient(details),
+      sendConsultationNoticeToTutor(details),
+    ]);
+  } catch (err) {
+    // Booking already succeeded; don't fail the request over email delivery.
+    console.error("Consultation email failed to send", err);
+  }
+
+  return NextResponse.json({ consultation });
+}
