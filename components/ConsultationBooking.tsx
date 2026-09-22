@@ -108,8 +108,8 @@ export default function ConsultationBooking() {
   if (data.slots.length === 0) {
     return (
       <p className="notice">
-        No open times in the next couple weeks &mdash; email
-        ed@leggtutoring.com and we&apos;ll find a time.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        eiusmod tempor incididunt ut labore et dolore magna aliqua.
       </p>
     );
   }

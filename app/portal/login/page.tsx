@@ -27,8 +27,8 @@ export default function LoginPage() {
       <div className="portal-card">
         <h1>Client Portal</h1>
         <p className="notice">
-          Enter the email your tutor sent your invite to. We&apos;ll email you
-          a secure sign-in link &mdash; no password needed.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
         <form onSubmit={handleSubmit} style={{ marginTop: 22 }}>
           <div className="field">

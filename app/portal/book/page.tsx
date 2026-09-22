@@ -111,10 +111,9 @@ export default function BookSessionPage() {
         {status === "error" && <p className="notice error">{errorMessage}</p>}
 
         <p className="policy-note">
-          Virtual sessions are paid in full before the session. In-person
-          sessions don&apos;t require payment upfront. Cancelling 24+ hours
-          out gets a full refund; inside 24 hours a flat fee applies. If your
-          tutor cancels, you&apos;re refunded automatically.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat.
         </p>
       </div>
     </div>

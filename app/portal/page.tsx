@@ -40,10 +40,8 @@ export default async function PortalDashboard() {
 
       {!approved && (
         <p className="notice" style={{ maxWidth: 480, margin: "0 auto 24px" }}>
-          Your account is set up, but you&apos;re not approved for session
-          booking yet. That happens right after your consultation call &mdash;
-          check back once you and your tutor have confirmed it&apos;s a good
-          fit.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
       )}
 
@@ -85,9 +83,9 @@ export default async function PortalDashboard() {
       </div>
 
       <p className="policy-note">
-        Cancel 24+ hours before your session for a full refund. Cancelling
-        inside 24 hours applies a flat fee to the refund. If your tutor
-        cancels, you&apos;re refunded in full automatically.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat.
       </p>
     </div>
   );
