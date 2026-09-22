@@ -1,17 +1,10 @@
 import Link from "next/link";
-import ConsultationBooking from "@/components/ConsultationBooking";
+import SiteHeader from "@/components/SiteHeader";
 
 export default function HomePage() {
   return (
     <>
-      <header>
-        <nav className="nav" style={{ justifyContent: "space-between" }}>
-          <div className="wordmark">Legg Tutoring</div>
-          <Link href="/portal" style={{ fontSize: "0.9rem" }}>
-            Client portal
-          </Link>
-        </nav>
-      </header>
+      <SiteHeader />
 
       <section className="slide slide-hero" id="hero">
         <div className="wrap hero-columns">
@@ -20,17 +13,13 @@ export default function HomePage() {
             With Legg Tutoring, receive help that suits your needs. I work on
             areas that students are struggling in. Catch up and show out.
           </p>
-          <div className="contact-card">
-            <div className="img-placeholder avatar-placeholder">Your photo</div>
-            <h3>Get in touch</h3>
-            <div className="contact-line">
-              <span className="label">Email</span>
-              <span className="value">ed@leggtutoring.com</span>
-            </div>
-          </div>
-          <div className="booking-card">
-            <h3>Book a free 15-minute consultation call</h3>
-            <ConsultationBooking />
+          <div className="hero-cta-row">
+            <Link href="/consultation" className="btn">
+              New client? Book a free consultation
+            </Link>
+            <Link href="/portal/login" className="btn btn-secondary">
+              Existing client? Log in
+            </Link>
           </div>
         </div>
         <div className="scroll-cue">

@@ -14,12 +14,13 @@ export const MIN_NOTICE_HOURS = 2;
 
 type Window = { weekday: number; start: string; end: string }; // weekday: 0=Sun..6=Sat, start/end: "HH:MM" 24h, in TUTOR_TIMEZONE
 
+// Nothing before noon, any day -- edit freely, just keep every start time >= "12:00".
 export const WEEKLY_AVAILABILITY: Window[] = [
   { weekday: 1, start: "16:00", end: "19:00" }, // Monday
   { weekday: 2, start: "16:00", end: "19:00" }, // Tuesday
   { weekday: 3, start: "16:00", end: "19:00" }, // Wednesday
   { weekday: 4, start: "16:00", end: "19:00" }, // Thursday
-  { weekday: 6, start: "10:00", end: "13:00" }, // Saturday
+  { weekday: 6, start: "12:00", end: "15:00" }, // Saturday
 ];
 
 function tzOffsetMinutes(date: Date, timeZone: string): number {
