@@ -40,8 +40,12 @@ function formatWhen(date: Date): string {
   });
 }
 
-export async function sendConsultationConfirmationToClient(c: ConsultationDetails) {
+export async function sendConsultationConfirmationToClient(
+  c: ConsultationDetails,
+  origin: string
+) {
   const when = formatWhen(c.scheduledAt);
+  const cancelUrl = `${origin}/consultation/cancel/${c.id}`;
   await getResend().emails.send({
     from: fromAddress(),
     to: c.email,
@@ -52,7 +56,9 @@ Your free 15-minute consultation call is confirmed for:
 
 ${when}
 
-We'll cover what you're looking for help with and whether it's a good fit. If anything comes up and you need to reschedule, just reply to this email.
+We'll cover what you're looking for help with and whether it's a good fit. If you need to cancel, use this link:
+
+${cancelUrl}
 
 Talk soon,
 Legg Tutoring`,
@@ -79,10 +85,12 @@ Phone: ${c.phone || "(not provided)"}
 Subject / grade level: ${c.subject || "(not provided)"}
 Notes from them: ${c.notes || "(none)"}
 
+${c.email} already has portal access (every consultation is auto-approved) -- no action needed there.
+
 What to do:
 1. ${scriptUrl ? `Open the call script: ${scriptUrl}` : "Open your call script (set CALL_SCRIPT_URL in env to link it here automatically)."}
 2. At the scheduled time, call/video with ${c.fullName}.
-3. After the call, go to /portal/admin and mark this consultation "Good fit" or "Not a fit". Marking it a good fit lets ${c.email} log in to book and pay for real sessions.
+3. If it turns out NOT to be a good fit, go to /portal/admin and mark this consultation "Not a fit" to revoke their portal access.
 
 Consultation ID: ${c.id}`,
   });
