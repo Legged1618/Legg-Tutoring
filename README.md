@@ -45,14 +45,24 @@ This is a scaffold: the structure and logic are in place, but it needs real acco
 2. Grab an API key under **API Keys** and put it in `RESEND_API_KEY`.
 3. For real sending to any address, verify your own domain under **Domains** and set `EMAIL_FROM` to an address on it (e.g. `Legg Tutoring <hello@leggtutoring.com>`). Until then, the default `onboarding@resend.dev` sender only delivers to your own Resend account email — fine for testing, not for real clients.
 
-### 4. Vercel (hosting) — free for this size of site
+### 4. Google Calendar (see your bookings automatically) — free
+
+Every scheduled consultation and paid session is available as a private ICS feed at `/api/calendar/feed.ics?token=<CALENDAR_FEED_TOKEN>`.
+
+1. Set `CALENDAR_FEED_TOKEN` in your env to a long random string (treat it like a password — anyone with it can read your upcoming bookings' names/emails/phone numbers). `.env.example` has a placeholder; generate one with `openssl rand -base64 24` or similar.
+2. In Google Calendar: **Settings → Add calendar → From URL**, paste `https://leggtutoring.com/api/calendar/feed.ics?token=<your token>`.
+3. Google will poll and refresh this periodically (typically every several hours, not instantly — that's a Google limitation for URL-subscribed calendars, not something this app controls).
+
+This is one-way and read-only by design: it shows what's booked, but cancelling/editing still happens through the portal or admin, not by touching the calendar event itself. Each event's description includes the client's contact info and (for consultations) the `CALL_SCRIPT_URL` link.
+
+### 5. Vercel (hosting) — free for this size of site
 
 1. Create an account at [vercel.com](https://vercel.com) and import this GitHub repo.
 2. Add every variable from `.env.example` as an Environment Variable in the Vercel project settings.
 3. Deploy.
 4. To use leggtutoring.com, add it under **Settings > Domains** in Vercel and update your DNS at your registrar to point at Vercel instead of GitHub Pages (the old `CNAME` file was for GitHub Pages and has been removed).
 
-### 5. Setting your rates and availability
+### 6. Setting your rates and availability
 
 - `lib/pricing.ts` — fill in `virtualHourlyRateCents`, `inPersonHourlyRateCents`, and `lateCancelFlatFeeCents` (all in cents).
 - `lib/availability.ts` — edit `WEEKLY_AVAILABILITY` to your real consultation hours (day of week + start/end time, in `TUTOR_TIMEZONE`).
