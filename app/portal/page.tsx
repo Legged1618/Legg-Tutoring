@@ -16,6 +16,9 @@ export default async function PortalDashboard() {
   const admin = createAdminClient();
   const client = await getOrCreateClientForUser(admin, user);
   const approved = client.approved;
+  const isTutor = Boolean(
+    process.env.TUTOR_EMAIL && user.email === process.env.TUTOR_EMAIL
+  );
 
   const { data: sessions } = await admin
     .from("sessions")
@@ -28,6 +31,11 @@ export default async function PortalDashboard() {
       <div className="section-head">
         <h2>Your sessions</h2>
         <p>{user.email}</p>
+        {isTutor && (
+          <p style={{ marginTop: 10 }}>
+            <Link href="/portal/admin">Go to consultation admin &rarr;</Link>
+          </p>
+        )}
       </div>
 
       {!approved && (
