@@ -7,9 +7,10 @@ Marketing site + one system for everything: free-consultation booking (no login)
 - `app/page.tsx` — the public marketing page, including an inline consultation-booking widget (`components/ConsultationBooking.tsx`). This replaced the old Cal.com embed — no account required to book a free 15-minute call.
 - `app/portal/*` — the client portal: magic-link login, dashboard of upcoming sessions, booking form. Anyone who's booked a consultation can log in immediately (see below).
 - `app/portal/admin` — tutor-only view listing consultations, with "Good fit" / "Not a fit" buttons. Since everyone is auto-approved at booking, this is really a revoke tool: "Not a fit" removes portal access.
+- `app/portal/admin/sessions` — tutor-only view of every client's paid sessions (not just your own), with the ability to cancel any of them.
 - `app/api/*` — server-side logic: consultation availability + booking, session booking, Stripe Checkout + webhook, cancellation/refunds.
 - `supabase/schema.sql` — the database schema (clients, sessions, consultations) with row-level security.
-- `lib/pricing.ts` — **all rates and the late-cancellation fee live here.** Currently `0` placeholders.
+- `lib/pricing.ts` — **all rates and the late-cancellation fee live here.** Currently $65/hr flat, virtual-only, $10 late-cancellation fee.
 - `lib/availability.ts` — **your weekly availability for free consultations lives here** (`WEEKLY_AVAILABILITY`). Edit the days/times to match your real schedule.
 
 This is a scaffold: the structure and logic are in place, but it needs real accounts (Supabase, Stripe, Resend, Vercel) connected before it does anything live.
@@ -19,7 +20,7 @@ This is a scaffold: the structure and logic are in place, but it needs real acco
 1. A visitor books a free consultation on `/consultation` (or the homepage) — no account needed. They pick an open slot (computed from `lib/availability.ts` minus already-booked times) and give their name/email/phone/subject.
 2. **They're approved for portal access immediately** — no manual review gate. Both the client and you get an email (via Resend). Yours includes their details, a link to the call script, and a reminder that you can revoke access later if it's not a fit.
 3. The client can cancel the free consultation any time with one click via the link in their confirmation email (`/consultation/cancel/[id]`) — no policy, no fee, it's free.
-4. That person can go to `/portal` any time, sign in with a magic link, and book/pay for real sessions. Virtual sessions pay via Stripe Checkout before confirming; in-person sessions let them type a location and don't require prepayment. **This is where the cancellation policy (24-hour refund rule) actually applies** — never to the free consultation.
+4. That person can go to `/portal` any time, sign in with a magic link, and book/pay for a real session (virtual only, $65/hr flat, via Stripe Checkout before it's confirmed). **This is where the cancellation policy (24-hour refund rule) actually applies** — never to the free consultation.
 5. After the call, if it turns out not to be a fit, go to `/portal/admin` (signed in as `TUTOR_EMAIL`) and mark it "Not a fit" to revoke that email's portal access.
 6. Either side can cancel a paid session from `/portal`; refunds follow the 24-hour policy automatically. You cancel by signing in with the email in `TUTOR_EMAIL`.
 
@@ -62,12 +63,12 @@ This is one-way and read-only by design: it shows what's booked, but cancelling/
 3. Deploy.
 4. To use leggtutoring.com, add it under **Settings > Domains** in Vercel and update your DNS at your registrar to point at Vercel instead of GitHub Pages (the old `CNAME` file was for GitHub Pages and has been removed).
 
-### 6. Setting your rates and availability
+### 6. Rates and availability
 
-- `lib/pricing.ts` — fill in `virtualHourlyRateCents`, `inPersonHourlyRateCents`, and `lateCancelFlatFeeCents` (all in cents).
+- `lib/pricing.ts` — `virtualHourlyRateCents` (currently 6500 = $65/hr) and `lateCancelFlatFeeCents` (currently 1000 = $10), both in cents.
 - `lib/availability.ts` — edit `WEEKLY_AVAILABILITY` to your real consultation hours (day of week + start/end time, in `TUTOR_TIMEZONE`).
 
-These should match whatever we land on together in the "Consultation Script & Policy" doc.
+These match the "Consultation Script & Policy" doc.
 
 ## Local development
 
@@ -79,8 +80,7 @@ npm run dev
 
 ## Known gaps / next decisions
 
-- Rates and the late-cancellation fee are placeholders (see above).
+- Virtual-only for now, by design — the business is positioned as nationwide/online. In-person could come back later (the `type` column and enum still support it), but nothing in the UI offers it currently.
 - Consultation availability doesn't cross-check against already-booked paid tutoring sessions yet — just other consultations. Worth unifying once real volume shows up.
-- In-person session locations are free-text. Flagged in the shared doc: restrict to public places for safety, or leave open?
 - Revoking access ("Not a fit") from `/portal/admin` requires you to be signed into the portal yourself as `TUTOR_EMAIL`.
 - No reschedule flow for consultations — a client who needs a different time cancels via their email link and books a new slot; there's no "change time" in place, just cancel + rebook.

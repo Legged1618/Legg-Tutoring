@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function BookSessionPage() {
-  const router = useRouter();
-  const [type, setType] = useState<"virtual" | "in_person">("virtual");
   const [scheduledAt, setScheduledAt] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(60);
-  const [location, setLocation] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -20,12 +16,7 @@ export default function BookSessionPage() {
     const res = await fetch("/api/sessions/book", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type,
-        scheduledAt,
-        durationMinutes,
-        location: type === "in_person" ? location : undefined,
-      }),
+      body: JSON.stringify({ scheduledAt, durationMinutes }),
     });
 
     const data = await res.json();
@@ -36,12 +27,7 @@ export default function BookSessionPage() {
       return;
     }
 
-    if (data.checkoutUrl) {
-      window.location.href = data.checkoutUrl;
-      return;
-    }
-
-    router.push("/portal");
+    window.location.href = data.checkoutUrl;
   }
 
   return (
@@ -49,18 +35,6 @@ export default function BookSessionPage() {
       <div className="portal-card" style={{ maxWidth: 520 }}>
         <h1>Book a session</h1>
         <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="type">Session type</label>
-            <select
-              id="type"
-              value={type}
-              onChange={(e) => setType(e.target.value as "virtual" | "in_person")}
-            >
-              <option value="virtual">Virtual (paid at booking)</option>
-              <option value="in_person">In-person, Roanoke area (pay after)</option>
-            </select>
-          </div>
-
           <div className="field">
             <label htmlFor="scheduledAt">Date &amp; time</label>
             <input
@@ -85,26 +59,8 @@ export default function BookSessionPage() {
             </select>
           </div>
 
-          {type === "in_person" && (
-            <div className="field">
-              <label htmlFor="location">Where should we meet?</label>
-              <input
-                id="location"
-                type="text"
-                required
-                placeholder="e.g. Roanoke Public Library, Main Branch"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
-            </div>
-          )}
-
           <button className="btn" type="submit" disabled={status === "submitting"}>
-            {status === "submitting"
-              ? "Working..."
-              : type === "virtual"
-              ? "Continue to payment"
-              : "Book session"}
+            {status === "submitting" ? "Working..." : "Continue to payment"}
           </button>
         </form>
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 
@@ -43,6 +44,9 @@ export default async function AdminPage() {
         <p>
           Everyone is auto-approved for portal access when they book. Mark
           &quot;Not a fit&quot; after a call to revoke that.
+        </p>
+        <p style={{ marginTop: 10 }}>
+          <Link href="/portal/admin/sessions">View all clients&apos; paid sessions &rarr;</Link>
         </p>
       </div>
 

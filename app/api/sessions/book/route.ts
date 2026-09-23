@@ -25,22 +25,13 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { type, scheduledAt, durationMinutes, location } = body as {
-    type: "virtual" | "in_person";
+  const { scheduledAt, durationMinutes } = body as {
     scheduledAt: string;
     durationMinutes: number;
-    location?: string;
   };
 
-  if (!type || !scheduledAt || !durationMinutes) {
+  if (!scheduledAt || !durationMinutes) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
-  }
-
-  if (type === "in_person" && !location) {
-    return NextResponse.json(
-      { error: "Please choose a location for the in-person session." },
-      { status: 400 }
-    );
   }
 
   const sessionStart = new Date(scheduledAt);
@@ -48,19 +39,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please choose a valid future time." }, { status: 400 });
   }
 
-  const hourlyRateCents =
-    type === "virtual" ? PRICING.virtualHourlyRateCents : PRICING.inPersonHourlyRateCents;
-  const rateCents = Math.round((hourlyRateCents * durationMinutes) / 60);
+  const rateCents = Math.round((PRICING.virtualHourlyRateCents * durationMinutes) / 60);
 
   const { data: session, error: insertError } = await admin
     .from("sessions")
     .insert({
       client_id: client.id,
-      type,
-      status: type === "virtual" ? "pending_payment" : "scheduled",
+      type: "virtual",
+      status: "pending_payment",
       scheduled_at: sessionStart.toISOString(),
       duration_minutes: durationMinutes,
-      location: location ?? null,
       rate_cents: rateCents,
     })
     .select()
@@ -68,11 +56,6 @@ export async function POST(request: Request) {
 
   if (insertError || !session) {
     return NextResponse.json({ error: "Could not create the session." }, { status: 500 });
-  }
-
-  if (type === "in_person") {
-    // No payment required upfront, per policy.
-    return NextResponse.json({ session });
   }
 
   const origin = new URL(request.url).origin;
