@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import PortalHeader from "@/components/PortalHeader";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -18,9 +19,12 @@ export default async function AdminPage() {
 
   if (!isTutor) {
     return (
-      <div className="portal-shell wrap">
-        <p className="notice error">This page is only for the tutor account.</p>
-      </div>
+      <>
+        <PortalHeader />
+        <div className="portal-shell wrap">
+          <p className="notice error">This page is only for the tutor account.</p>
+        </div>
+      </>
     );
   }
 
@@ -38,7 +42,9 @@ export default async function AdminPage() {
   );
 
   return (
-    <div className="portal-shell wrap">
+    <>
+      <PortalHeader />
+      <div className="portal-shell wrap">
       <div className="section-head">
         <h2>Consultations</h2>
         <p>
@@ -96,6 +102,7 @@ export default async function AdminPage() {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

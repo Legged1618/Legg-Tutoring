@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import SiteHeader from "@/components/SiteHeader";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -23,7 +24,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="portal-shell wrap" style={{ display: "flex" }}>
+    <>
+      <SiteHeader />
+      <div className="portal-shell wrap" style={{ display: "flex" }}>
       <div className="portal-card">
         <h1>Client Portal</h1>
         <p className="notice">
@@ -55,6 +58,7 @@ export default function LoginPage() {
           </p>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

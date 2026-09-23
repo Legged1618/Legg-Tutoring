@@ -7,7 +7,7 @@ export default function SiteHeader() {
         <Link href="/" className="wordmark">
           Legg Tutoring
         </Link>
-        <div style={{ display: "flex", gap: 20, fontSize: "0.9rem" }}>
+        <div className="nav-links">
           <Link href="/consultation">Book a consultation</Link>
           <Link href="/portal/login">Client login</Link>
         </div>

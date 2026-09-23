@@ -57,10 +57,36 @@ header {
   padding: 20px 28px;
   max-width: 1080px;
   margin: 0 auto;
+  gap: 16px;
 }
 
 .wordmark {
   font-size: 1.3rem;
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .nav {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .wordmark {
+    font-size: 1.05rem;
+  }
+
+  .nav-links {
+    gap: 12px;
+    font-size: 0.82rem;
+  }
 }
 
 /* ---------- Slides ---------- */
