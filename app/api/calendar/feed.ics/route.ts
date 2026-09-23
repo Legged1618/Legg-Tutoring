@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { buildIcsFeed, type IcsEvent } from "@/lib/ics";
+import { buildConsultationChecklist, buildSessionChecklist } from "@/lib/bookingChecklist";
 
 const CONSULTATION_MINUTES = 15;
 const FEED_LOOKBACK_DAYS = 1;
@@ -45,18 +46,7 @@ export async function GET(request: Request) {
       start,
       end,
       summary: `Consultation: ${c.full_name}`,
-      description: [
-        "To do:",
-        scriptUrl ? `☐ Open the call script: ${scriptUrl}` : "☐ Open your call script",
-        `☐ Call/video with ${c.full_name} at the scheduled time`,
-        "☐ Afterward, mark \"Good fit\" or \"Not a fit\" at /portal/admin",
-        "",
-        `Contact: ${c.email}${c.phone ? ` · ${c.phone}` : ""}`,
-        c.subject ? `Subject: ${c.subject}` : null,
-        c.notes ? `Notes: ${c.notes}` : null,
-      ]
-        .filter((line) => line !== null)
-        .join("\n"),
+      description: buildConsultationChecklist(c as any, scriptUrl),
     });
   }
 
@@ -70,15 +60,7 @@ export async function GET(request: Request) {
       start,
       end,
       summary: `Virtual session: ${clientLabel}`,
-      description: [
-        "To do:",
-        `☐ Join the video call with ${clientLabel} at the scheduled time`,
-        `☐ Paid in full ($${(s.rate_cents / 100).toFixed(2)}) — no payment action needed`,
-        "",
-        client?.email ? `Contact: ${client.email}${client.phone ? ` · ${client.phone}` : ""}` : null,
-      ]
-        .filter((line) => line !== null)
-        .join("\n"),
+      description: buildSessionChecklist(s as any, client),
     });
   }
 

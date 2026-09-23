@@ -6,8 +6,7 @@ Marketing site + one system for everything: free-consultation booking (no login)
 
 - `app/page.tsx` — the public marketing page, including an inline consultation-booking widget (`components/ConsultationBooking.tsx`). This replaced the old Cal.com embed — no account required to book a free 15-minute call.
 - `app/portal/*` — the client portal: magic-link login, dashboard of upcoming sessions, booking form. Anyone who's booked a consultation can log in immediately (see below).
-- `app/portal/admin` — tutor-only view listing consultations, with "Good fit" / "Not a fit" buttons. Since everyone is auto-approved at booking, this is really a revoke tool: "Not a fit" removes portal access.
-- `app/portal/admin/sessions` — tutor-only view of every client's paid sessions (not just your own), with the ability to cancel any of them.
+- `app/portal/admin/*` — the tutor-only admin portal, tabbed: **Calendar** (agenda view of everything upcoming, click any item to expand its "what to do" checklist), **Consultations** ("Good fit" / "Not a fit" -- since everyone is auto-approved at booking, this is really a revoke tool), **Sessions** (every client's paid sessions, can cancel any), **Scripts** (placeholder linking to the shared doc -- real content is next phase). Gated entirely by `TUTOR_EMAIL`; nobody else can reach any of it.
 - `app/api/*` — server-side logic: consultation availability + booking, session booking, Stripe Checkout + webhook, cancellation/refunds.
 - `supabase/schema.sql` — the database schema (clients, sessions, consultations) with row-level security.
 - `lib/pricing.ts` — **all rates and the late-cancellation fee live here.** Currently $65/hr flat, virtual-only, $10 late-cancellation fee.
@@ -21,7 +20,7 @@ This is a scaffold: the structure and logic are in place, but it needs real acco
 2. **They're approved for portal access immediately** — no manual review gate. Both the client and you get an email (via Resend). Yours includes their details, a link to the call script, and a reminder that you can revoke access later if it's not a fit.
 3. The client can cancel the free consultation any time with one click via the link in their confirmation email (`/consultation/cancel/[id]`) — no policy, no fee, it's free.
 4. That person can go to `/portal` any time, sign in with a magic link, and book/pay for a real session (virtual only, $65/hr flat, via Stripe Checkout before it's confirmed). **This is where the cancellation policy (24-hour refund rule) actually applies** — never to the free consultation.
-5. After the call, if it turns out not to be a fit, go to `/portal/admin` (signed in as `TUTOR_EMAIL`) and mark it "Not a fit" to revoke that email's portal access.
+5. After the call, if it turns out not to be a fit, go to `/portal/admin` (signed in as `TUTOR_EMAIL`) and mark it "Not a fit" to revoke that email's portal access. Everything upcoming -- consultations and sessions together -- is also visible at `/portal/admin/calendar`, click any entry for its checklist.
 6. Either side can cancel a paid session from `/portal`; refunds follow the 24-hour policy automatically. You cancel by signing in with the email in `TUTOR_EMAIL`.
 
 ## One-time setup
@@ -84,3 +83,5 @@ npm run dev
 - Session slots (30/60/120 min) and consultation slots (15 min) both draw from `lib/availability.ts`'s shared engine and block each other — no more double-booking across the two tables.
 - Revoking access ("Not a fit") from `/portal/admin` requires you to be signed into the portal yourself as `TUTOR_EMAIL`.
 - No reschedule flow for consultations — a client who needs a different time cancels via their email link and books a new slot; there's no "change time" in place, just cancel + rebook.
+- `TUTOR_EMAIL` decides who has admin access -- update it in your env (and log in with that email going forward) to change who that is. Nothing else in the code needs to change.
+- The admin Calendar view is an in-app agenda list (grouped by day, click to expand), not a full month-grid calendar widget -- deliberately simpler to build/maintain; worth revisiting if that's ever not enough.

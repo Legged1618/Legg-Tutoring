@@ -17,6 +17,7 @@ export default function PortalHeader() {
           Legg Tutoring
         </Link>
         <div className="nav-links">
+          <Link href="/">&larr; Homepage</Link>
           <Link href="/portal">My sessions</Link>
           <button
             type="button"
