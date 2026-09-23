@@ -95,3 +95,59 @@ What to do:
 Consultation ID: ${c.id}`,
   });
 }
+
+export type SessionDetails = {
+  id: string;
+  scheduledAt: Date;
+  durationMinutes: number;
+  rateCents: number;
+  clientName: string | null;
+  clientEmail: string;
+  clientPhone: string | null;
+};
+
+export async function sendSessionConfirmationToClient(s: SessionDetails) {
+  const when = formatWhen(s.scheduledAt);
+  await getResend().emails.send({
+    from: fromAddress(),
+    to: s.clientEmail,
+    subject: "Your tutoring session is confirmed — Legg Tutoring",
+    text: `Hi ${s.clientName || "there"},
+
+Your ${s.durationMinutes}-minute virtual tutoring session is confirmed and paid for:
+
+${when}
+
+You'll receive a video call link before the session. To cancel or reschedule, sign into your portal at any time -- cancelling 24+ hours out gets a full refund, inside 24 hours a $10 flat fee applies.
+
+See you then,
+Legg Tutoring`,
+  });
+}
+
+export async function sendSessionNoticeToTutor(s: SessionDetails) {
+  const when = formatWhen(s.scheduledAt);
+  const tutorEmail = process.env.TUTOR_EMAIL;
+  if (!tutorEmail) return;
+
+  await getResend().emails.send({
+    from: fromAddress(),
+    to: tutorEmail,
+    subject: `New paid session: ${s.clientName || s.clientEmail} — ${when}`,
+    text: `New paid session booked and confirmed (payment already received).
+
+When: ${when}
+Duration: ${s.durationMinutes} min
+Rate: $${(s.rateCents / 100).toFixed(2)}
+Client: ${s.clientName || "(no name on file)"}
+Email: ${s.clientEmail}
+Phone: ${s.clientPhone || "(not provided)"}
+
+What to do:
+1. Nothing until the session -- it's already paid, no action needed.
+2. At the scheduled time, join the call with ${s.clientName || s.clientEmail}.
+3. To cancel this session yourself, use /portal/admin/sessions (triggers an automatic full refund).
+
+Session ID: ${s.id}`,
+  });
+}

@@ -7,9 +7,10 @@ export default function BookSessionPage() {
         <h1>Book a session</h1>
         <SessionBooking />
         <p className="policy-note">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
+          $65/hour, virtual only. Payment is collected now, before the
+          session. Cancel 24+ hours out for a full refund; inside 24 hours a
+          flat $10 fee applies. If your tutor cancels, you&apos;re refunded
+          in full automatically.
         </p>
       </div>
     </div>

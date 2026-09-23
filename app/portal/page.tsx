@@ -83,9 +83,9 @@ export default async function PortalDashboard() {
       </div>
 
       <p className="policy-note">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad
-        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-        aliquip ex ea commodo consequat.
+        Cancel 24+ hours before your session for a full refund. Cancelling
+        inside 24 hours applies a flat $10 fee to the refund. If your tutor
+        cancels, you&apos;re refunded in full automatically.
       </p>
     </div>
   );
