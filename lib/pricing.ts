@@ -1,11 +1,11 @@
 /**
  * All money amounts are in cents (Stripe convention) to avoid float rounding bugs.
- * TODO(ed): fill in real numbers once decided in the "Consultation Script & Policy" doc.
+ * Virtual-only for now -- in-person tutoring isn't offered while the
+ * business is positioned as nationwide/virtual-first.
  */
 export const PRICING = {
-  virtualHourlyRateCents: 0, // TODO: e.g. 6000 = $60/hr
-  inPersonHourlyRateCents: 0, // TODO
-  lateCancelFlatFeeCents: 0, // TODO: fee charged for cancellations inside the 24h window
+  virtualHourlyRateCents: 6500, // $65/hr
+  lateCancelFlatFeeCents: 1000, // $10 flat fee for cancellations inside the 24h window
   currency: "usd",
 } as const;
 
