@@ -1,16 +1,26 @@
 /**
- * Free-consultation availability. Edit WEEKLY_AVAILABILITY to match your
- * real schedule -- everything else derives from it.
+ * Shared availability engine for both free consultations and paid
+ * sessions. Both draw from the same WEEKLY_AVAILABILITY windows and are
+ * checked against each other -- a booked consultation blocks that time
+ * for sessions and vice versa, since the tutor can only be in one place
+ * at a time regardless of which table a booking lives in.
  *
- * Known limitation: this only checks against other booked consultations,
- * not against paid tutoring sessions already on the calendar. Until the
- * two are unified, double-check your own calendar before a busy week.
+ * Edit WEEKLY_AVAILABILITY to match your real schedule -- everything else
+ * derives from it.
  */
 
 export const TUTOR_TIMEZONE = "America/New_York";
 export const CONSULTATION_DURATION_MINUTES = 15;
+export const SESSION_DURATIONS_MINUTES = [30, 60, 120] as const;
+export type SessionDurationMinutes = (typeof SESSION_DURATIONS_MINUTES)[number];
+
 export const BOOKING_WINDOW_DAYS = 14;
 export const MIN_NOTICE_HOURS = 2;
+
+// Granularity of possible start times within a window -- independent of
+// how long the thing being booked is (e.g. a 2-hour session can still
+// start on a 15-minute mark).
+const SLOT_STEP_MINUTES = 15;
 
 type Window = { weekday: number; start: string; end: string }; // weekday: 0=Sun..6=Sat, start/end: "HH:MM" 24h, in TUTOR_TIMEZONE
 
@@ -22,6 +32,8 @@ export const WEEKLY_AVAILABILITY: Window[] = [
   { weekday: 4, start: "16:00", end: "19:00" }, // Thursday
   { weekday: 6, start: "12:00", end: "15:00" }, // Saturday
 ];
+
+export type BusyInterval = { start: Date; end: Date };
 
 function tzOffsetMinutes(date: Date, timeZone: string): number {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -59,8 +71,19 @@ function zonedWallTimeToUtc(
   return new Date(guess.getTime() - offset * 60000);
 }
 
-/** All bookable slot start times in the booking window, ignoring existing bookings. */
-export function generateCandidateSlots(now: Date = new Date()): Date[] {
+function overlaps(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
+  return startA.getTime() < endB.getTime() && endA.getTime() > startB.getTime();
+}
+
+/**
+ * All possible start times in the booking window where a booking of
+ * `durationMinutes` would fit entirely inside an availability window,
+ * ignoring existing bookings.
+ */
+export function generateCandidateSlotStarts(
+  durationMinutes: number,
+  now: Date = new Date()
+): Date[] {
   const todayParts = new Intl.DateTimeFormat("en-CA", {
     timeZone: TUTOR_TIMEZONE,
     year: "numeric",
@@ -95,8 +118,8 @@ export function generateCandidateSlots(now: Date = new Date()): Date[] {
 
       for (
         let m = startMinutes;
-        m + CONSULTATION_DURATION_MINUTES <= endMinutes;
-        m += CONSULTATION_DURATION_MINUTES
+        m + durationMinutes <= endMinutes;
+        m += SLOT_STEP_MINUTES
       ) {
         const hh = Math.floor(m / 60);
         const mm = m % 60;
@@ -108,24 +131,31 @@ export function generateCandidateSlots(now: Date = new Date()): Date[] {
   return slots;
 }
 
-/** Candidate slots minus already-booked times and anything too soon to book. */
+/** Candidate slots minus anything overlapping an existing booking or too soon to book. */
 export function getAvailableSlots(
-  bookedEpochMs: Set<number>,
+  durationMinutes: number,
+  busy: BusyInterval[],
   now: Date = new Date()
 ): Date[] {
   const earliest = now.getTime() + MIN_NOTICE_HOURS * 60 * 60 * 1000;
-  return generateCandidateSlots(now).filter(
-    (slot) => slot.getTime() >= earliest && !bookedEpochMs.has(slot.getTime())
-  );
+  return generateCandidateSlotStarts(durationMinutes, now).filter((slotStart) => {
+    if (slotStart.getTime() < earliest) return false;
+    const slotEnd = new Date(slotStart.getTime() + durationMinutes * 60000);
+    return !busy.some((b) => overlaps(slotStart, slotEnd, b.start, b.end));
+  });
 }
 
 export function isSlotStillAvailable(
   slot: Date,
-  bookedEpochMs: Set<number>,
+  durationMinutes: number,
+  busy: BusyInterval[],
   now: Date = new Date()
 ): boolean {
   const earliest = now.getTime() + MIN_NOTICE_HOURS * 60 * 60 * 1000;
   if (slot.getTime() < earliest) return false;
-  if (bookedEpochMs.has(slot.getTime())) return false;
-  return generateCandidateSlots(now).some((s) => s.getTime() === slot.getTime());
+  const slotEnd = new Date(slot.getTime() + durationMinutes * 60000);
+  if (busy.some((b) => overlaps(slot, slotEnd, b.start, b.end))) return false;
+  return generateCandidateSlotStarts(durationMinutes, now).some(
+    (s) => s.getTime() === slot.getTime()
+  );
 }

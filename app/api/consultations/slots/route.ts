@@ -6,30 +6,17 @@ import {
   TUTOR_TIMEZONE,
   getAvailableSlots,
 } from "@/lib/availability";
+import { fetchBusyIntervals } from "@/lib/busyIntervals";
 
 export async function GET() {
   const admin = createAdminClient();
   const now = new Date();
   const windowEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
 
-  const { data: booked, error } = await admin
-    .from("consultations")
-    .select("scheduled_at")
-    .eq("status", "scheduled")
-    .gte("scheduled_at", now.toISOString())
-    .lte("scheduled_at", windowEnd.toISOString());
-
-  if (error) {
-    return NextResponse.json({ error: "Could not load availability." }, { status: 500 });
-  }
-
-  const bookedEpochMs = new Set<number>(
-    ((booked ?? []) as { scheduled_at: string }[]).map((row) =>
-      new Date(row.scheduled_at).getTime()
-    )
+  const busy = await fetchBusyIntervals(admin, now.toISOString(), windowEnd.toISOString());
+  const slots = getAvailableSlots(CONSULTATION_DURATION_MINUTES, busy, now).map((d) =>
+    d.toISOString()
   );
-
-  const slots = getAvailableSlots(bookedEpochMs, now).map((d) => d.toISOString());
 
   return NextResponse.json({
     slots,

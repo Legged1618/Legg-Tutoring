@@ -3,6 +3,12 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
 import { stripe } from "@/lib/stripe";
 import { PRICING } from "@/lib/pricing";
+import {
+  BOOKING_WINDOW_DAYS,
+  SESSION_DURATIONS_MINUTES,
+  isSlotStillAvailable,
+} from "@/lib/availability";
+import { fetchBusyIntervals } from "@/lib/busyIntervals";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -34,9 +40,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
+  if (!SESSION_DURATIONS_MINUTES.includes(durationMinutes as (typeof SESSION_DURATIONS_MINUTES)[number])) {
+    return NextResponse.json({ error: "Invalid duration." }, { status: 400 });
+  }
+
   const sessionStart = new Date(scheduledAt);
-  if (Number.isNaN(sessionStart.getTime()) || sessionStart < new Date()) {
+  if (Number.isNaN(sessionStart.getTime())) {
     return NextResponse.json({ error: "Please choose a valid future time." }, { status: 400 });
+  }
+
+  const now = new Date();
+  const windowEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
+  const busy = await fetchBusyIntervals(admin, now.toISOString(), windowEnd.toISOString());
+
+  if (!isSlotStillAvailable(sessionStart, durationMinutes, busy, now)) {
+    return NextResponse.json(
+      { error: "That time isn't available anymore. Please pick another." },
+      { status: 409 }
+    );
   }
 
   const rateCents = Math.round((PRICING.virtualHourlyRateCents * durationMinutes) / 60);

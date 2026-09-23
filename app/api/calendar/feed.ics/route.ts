@@ -46,13 +46,16 @@ export async function GET(request: Request) {
       end,
       summary: `Consultation: ${c.full_name}`,
       description: [
-        `Email: ${c.email}`,
-        c.phone ? `Phone: ${c.phone}` : null,
+        "To do:",
+        scriptUrl ? `☐ Open the call script: ${scriptUrl}` : "☐ Open your call script",
+        `☐ Call/video with ${c.full_name} at the scheduled time`,
+        "☐ Afterward, mark \"Good fit\" or \"Not a fit\" at /portal/admin",
+        "",
+        `Contact: ${c.email}${c.phone ? ` · ${c.phone}` : ""}`,
         c.subject ? `Subject: ${c.subject}` : null,
         c.notes ? `Notes: ${c.notes}` : null,
-        scriptUrl ? `Call script: ${scriptUrl}` : null,
       ]
-        .filter(Boolean)
+        .filter((line) => line !== null)
         .join("\n"),
     });
   }
@@ -61,20 +64,21 @@ export async function GET(request: Request) {
     const start = new Date(s.scheduled_at);
     const end = new Date(start.getTime() + s.duration_minutes * 60000);
     const client = s.clients as { full_name: string | null; email: string; phone: string | null } | null;
-    const label = s.type === "virtual" ? "Virtual session" : "In-person session";
+    const clientLabel = client?.full_name || client?.email || "Client";
     events.push({
       uid: `session-${s.id}@leggtutoring.com`,
       start,
       end,
-      summary: `${label}: ${client?.full_name || client?.email || "Client"}`,
+      summary: `Virtual session: ${clientLabel}`,
       description: [
-        client?.email ? `Email: ${client.email}` : null,
-        client?.phone ? `Phone: ${client.phone}` : null,
-        `Rate: $${(s.rate_cents / 100).toFixed(2)}`,
+        "To do:",
+        `☐ Join the video call with ${clientLabel} at the scheduled time`,
+        `☐ Paid in full ($${(s.rate_cents / 100).toFixed(2)}) — no payment action needed`,
+        "",
+        client?.email ? `Contact: ${client.email}${client.phone ? ` · ${client.phone}` : ""}` : null,
       ]
-        .filter(Boolean)
+        .filter((line) => line !== null)
         .join("\n"),
-      location: s.location || undefined,
     });
   }
 

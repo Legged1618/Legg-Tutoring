@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { BOOKING_WINDOW_DAYS, isSlotStillAvailable } from "@/lib/availability";
+import {
+  BOOKING_WINDOW_DAYS,
+  CONSULTATION_DURATION_MINUTES,
+  isSlotStillAvailable,
+} from "@/lib/availability";
+import { fetchBusyIntervals } from "@/lib/busyIntervals";
 import { setClientApproval } from "@/lib/clients";
 import {
   sendConsultationConfirmationToClient,
@@ -31,24 +36,9 @@ export async function POST(request: Request) {
   const now = new Date();
   const windowEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
 
-  const { data: booked, error: fetchError } = await admin
-    .from("consultations")
-    .select("scheduled_at")
-    .eq("status", "scheduled")
-    .gte("scheduled_at", now.toISOString())
-    .lte("scheduled_at", windowEnd.toISOString());
+  const busy = await fetchBusyIntervals(admin, now.toISOString(), windowEnd.toISOString());
 
-  if (fetchError) {
-    return NextResponse.json({ error: "Could not check availability." }, { status: 500 });
-  }
-
-  const bookedEpochMs = new Set<number>(
-    ((booked ?? []) as { scheduled_at: string }[]).map((row) =>
-      new Date(row.scheduled_at).getTime()
-    )
-  );
-
-  if (!isSlotStillAvailable(slot, bookedEpochMs, now)) {
+  if (!isSlotStillAvailable(slot, CONSULTATION_DURATION_MINUTES, busy, now)) {
     return NextResponse.json(
       { error: "That time isn't available anymore. Please pick another." },
       { status: 409 }
