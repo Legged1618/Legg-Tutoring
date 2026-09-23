@@ -81,6 +81,6 @@ npm run dev
 ## Known gaps / next decisions
 
 - Virtual-only for now, by design — the business is positioned as nationwide/online. In-person could come back later (the `type` column and enum still support it), but nothing in the UI offers it currently.
-- Consultation availability doesn't cross-check against already-booked paid tutoring sessions yet — just other consultations. Worth unifying once real volume shows up.
+- Session slots (30/60/120 min) and consultation slots (15 min) both draw from `lib/availability.ts`'s shared engine and block each other — no more double-booking across the two tables.
 - Revoking access ("Not a fit") from `/portal/admin` requires you to be signed into the portal yourself as `TUTOR_EMAIL`.
 - No reschedule flow for consultations — a client who needs a different time cancels via their email link and books a new slot; there's no "change time" in place, just cancel + rebook.

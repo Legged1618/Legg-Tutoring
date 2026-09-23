@@ -1,28 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { groupSlotsByDay } from "@/lib/slotDisplay";
 
 type SlotsResponse = {
   slots: string[];
   timezone: string;
   durationMinutes: number;
 };
-
-function groupByDay(slots: string[], timezone: string) {
-  const groups = new Map<string, string[]>();
-  for (const iso of slots) {
-    const date = new Date(iso);
-    const key = date.toLocaleDateString("en-US", {
-      timeZone: timezone,
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-    });
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(iso);
-  }
-  return Array.from(groups.entries());
-}
 
 export default function ConsultationBooking() {
   const [data, setData] = useState<SlotsResponse | null>(null);
@@ -114,7 +99,7 @@ export default function ConsultationBooking() {
     );
   }
 
-  const days = groupByDay(data.slots, data.timezone);
+  const days = groupSlotsByDay(data.slots, data.timezone);
 
   return (
     <div className="slot-picker">
