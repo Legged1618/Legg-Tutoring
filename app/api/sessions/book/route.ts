@@ -6,6 +6,7 @@ import { PRICING } from "@/lib/pricing";
 import {
   BOOKING_WINDOW_DAYS,
   SESSION_DURATIONS_MINUTES,
+  SESSION_MIN_NOTICE_HOURS,
   isSlotStillAvailable,
 } from "@/lib/availability";
 import { fetchBusyIntervals } from "@/lib/busyIntervals";
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
   const windowEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
   const busy = await fetchBusyIntervals(admin, now.toISOString(), windowEnd.toISOString());
 
-  if (!isSlotStillAvailable(sessionStart, durationMinutes, busy, now)) {
+  if (!isSlotStillAvailable(sessionStart, durationMinutes, busy, now, SESSION_MIN_NOTICE_HOURS)) {
     return NextResponse.json(
       { error: "That time isn't available anymore. Please pick another." },
       { status: 409 }
