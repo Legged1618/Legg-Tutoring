@@ -52,6 +52,7 @@ export async function POST(
     approved: outcome === "good_fit",
   });
 
-  const redirectUrl = new URL("/portal/admin", request.url);
+  const next = new URL(request.url).searchParams.get("next");
+  const redirectUrl = new URL(next || "/portal/admin", request.url);
   return NextResponse.redirect(redirectUrl, { status: 303 });
 }

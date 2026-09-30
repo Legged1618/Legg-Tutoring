@@ -77,6 +77,7 @@ export async function POST(
     })
     .eq("id", session.id);
 
-  const redirectUrl = new URL("/portal", request.url);
+  const next = new URL(request.url).searchParams.get("next");
+  const redirectUrl = new URL(next || "/portal", request.url);
   return NextResponse.redirect(redirectUrl, { status: 303 });
 }

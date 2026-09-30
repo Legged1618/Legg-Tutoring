@@ -94,9 +94,24 @@ create table if not exists public.consultations (
 create index if not exists consultations_scheduled_at_idx on public.consultations (scheduled_at);
 create index if not exists consultations_email_idx on public.consultations (email);
 
+-- Ad-hoc time off on top of the recurring WEEKLY_AVAILABILITY schedule --
+-- set by the tutor from the admin calendar whenever they want a day (or
+-- stretch of days) off. Blocks new bookings for both consultations and
+-- paid sessions in that range; doesn't touch anything already booked.
+create table if not exists public.time_off (
+  id uuid primary key default gen_random_uuid(),
+  starts_at timestamptz not null,
+  ends_at timestamptz not null,
+  reason text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists time_off_range_idx on public.time_off (starts_at, ends_at);
+
 alter table public.clients enable row level security;
 alter table public.sessions enable row level security;
 alter table public.consultations enable row level security;
+alter table public.time_off enable row level security;
 
 create policy "clients read own row"
   on public.clients for select
@@ -114,3 +129,6 @@ create policy "clients read own sessions"
 -- at all for consultations: booking is public but goes through the API
 -- (service role) so slot uniqueness and availability rules are enforced
 -- server-side, not by a client calling Supabase directly.
+--
+-- No policies at all for time_off either -- only the tutor-gated API
+-- routes (service role) ever read or write it.

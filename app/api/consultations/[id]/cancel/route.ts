@@ -31,6 +31,9 @@ export async function POST(
 
   await admin.from("consultations").update({ status: "cancelled" }).eq("id", id);
 
-  const redirectUrl = new URL(`/consultation/cancel/${id}?cancelled=1`, request.url);
+  const next = new URL(request.url).searchParams.get("next");
+  const redirectUrl = next
+    ? new URL(next, request.url)
+    : new URL(`/consultation/cancel/${id}?cancelled=1`, request.url);
   return NextResponse.redirect(redirectUrl, { status: 303 });
 }
