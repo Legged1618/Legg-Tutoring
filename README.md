@@ -86,7 +86,7 @@ npm run dev
 ## Known gaps / next decisions
 
 - Virtual-only for now, by design — the business is positioned as nationwide/online. In-person could come back later (the `type` column and enum still support it), but nothing in the UI offers it currently.
-- Session slots (30/60/120 min) and consultation slots (15 min) both draw from `lib/availability.ts`'s shared engine and block each other — no more double-booking across the two tables.
+- Session slots (30/60/120 min) and consultation slots (15 min) both draw from `lib/availability.ts`'s shared engine and block each other — no more double-booking across the two tables. Minimum notice differs by type: consultations need 2 hours (`MIN_NOTICE_HOURS`), paid sessions need 48 hours (`SESSION_MIN_NOTICE_HOURS`) — a real commitment on both sides. Both still cap out at `BOOKING_WINDOW_DAYS` (14) out.
 - Revoking access ("Not a fit") from `/portal/admin` requires you to be signed into the portal yourself as `TUTOR_EMAIL`.
 - No reschedule flow for consultations — a client who needs a different time cancels via their email link and books a new slot; there's no "change time" in place, just cancel + rebook.
 - `TUTOR_EMAIL` decides who has admin access -- update it in your env (and log in with that email going forward) to change who that is. Nothing else in the code needs to change.

@@ -4,6 +4,7 @@ import { getOrCreateClientForUser } from "@/lib/clients";
 import {
   BOOKING_WINDOW_DAYS,
   SESSION_DURATIONS_MINUTES,
+  SESSION_MIN_NOTICE_HOURS,
   TUTOR_TIMEZONE,
   getAvailableSlots,
 } from "@/lib/availability";
@@ -39,7 +40,9 @@ export async function GET(request: Request) {
   const now = new Date();
   const windowEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
   const busy = await fetchBusyIntervals(admin, now.toISOString(), windowEnd.toISOString());
-  const slots = getAvailableSlots(durationMinutes, busy, now).map((d) => d.toISOString());
+  const slots = getAvailableSlots(durationMinutes, busy, now, SESSION_MIN_NOTICE_HOURS).map((d) =>
+    d.toISOString()
+  );
 
   return NextResponse.json({ slots, timezone: TUTOR_TIMEZONE, durationMinutes });
 }

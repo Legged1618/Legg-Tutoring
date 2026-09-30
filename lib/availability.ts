@@ -15,7 +15,10 @@ export const SESSION_DURATIONS_MINUTES = [30, 60, 120] as const;
 export type SessionDurationMinutes = (typeof SESSION_DURATIONS_MINUTES)[number];
 
 export const BOOKING_WINDOW_DAYS = 14;
+// Free consultations: same-day is fine, just a couple hours' buffer.
 export const MIN_NOTICE_HOURS = 2;
+// Paid sessions: a real commitment on both sides, so require real notice.
+export const SESSION_MIN_NOTICE_HOURS = 48;
 
 // Granularity of possible start times within a window -- independent of
 // how long the thing being booked is (e.g. a 2-hour session can still
@@ -147,9 +150,10 @@ export function generateCandidateSlotStarts(
 export function getAvailableSlots(
   durationMinutes: number,
   busy: BusyInterval[],
-  now: Date = new Date()
+  now: Date = new Date(),
+  minNoticeHours: number = MIN_NOTICE_HOURS
 ): Date[] {
-  const earliest = now.getTime() + MIN_NOTICE_HOURS * 60 * 60 * 1000;
+  const earliest = now.getTime() + minNoticeHours * 60 * 60 * 1000;
   return generateCandidateSlotStarts(durationMinutes, now).filter((slotStart) => {
     if (slotStart.getTime() < earliest) return false;
     const slotEnd = new Date(slotStart.getTime() + durationMinutes * 60000);
@@ -161,9 +165,10 @@ export function isSlotStillAvailable(
   slot: Date,
   durationMinutes: number,
   busy: BusyInterval[],
-  now: Date = new Date()
+  now: Date = new Date(),
+  minNoticeHours: number = MIN_NOTICE_HOURS
 ): boolean {
-  const earliest = now.getTime() + MIN_NOTICE_HOURS * 60 * 60 * 1000;
+  const earliest = now.getTime() + minNoticeHours * 60 * 60 * 1000;
   if (slot.getTime() < earliest) return false;
   const slotEnd = new Date(slot.getTime() + durationMinutes * 60000);
   if (busy.some((b) => overlaps(slot, slotEnd, b.start, b.end))) return false;
