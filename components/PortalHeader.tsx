@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export default function PortalHeader() {
+export default function PortalHeader({ isTutor = false }: { isTutor?: boolean }) {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -18,7 +18,7 @@ export default function PortalHeader() {
         </Link>
         <div className="nav-links">
           <Link href="/">&larr; Homepage</Link>
-          <Link href="/portal">My sessions</Link>
+          {!isTutor && <Link href="/portal">My sessions</Link>}
           <button
             type="button"
             onClick={handleLogout}

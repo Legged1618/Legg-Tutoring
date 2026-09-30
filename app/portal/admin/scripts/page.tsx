@@ -32,7 +32,7 @@ export default async function AdminScriptsPage() {
 
   return (
     <>
-      <PortalHeader />
+      <PortalHeader isTutor />
       <div className="portal-shell wrap">
         <AdminTabs />
         <div className="section-head">

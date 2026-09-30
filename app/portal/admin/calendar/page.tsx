@@ -206,7 +206,7 @@ export default async function AdminCalendarPage({
 
   return (
     <>
-      <PortalHeader />
+      <PortalHeader isTutor />
       <div className="portal-shell wrap">
         <AdminTabs />
         <div className="section-head">
