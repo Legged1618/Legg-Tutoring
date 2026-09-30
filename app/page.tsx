@@ -1,7 +1,23 @@
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
+  const isTutor = Boolean(
+    user && process.env.TUTOR_EMAIL && user.email === process.env.TUTOR_EMAIL
+  );
+
+  const secondCta = user
+    ? isTutor
+      ? { href: "/portal/admin", label: "Go to admin portal" }
+      : { href: "/portal", label: "Go to client portal" }
+    : { href: "/portal/login", label: "Existing client? Log in" };
+
   return (
     <>
       <SiteHeader />
@@ -17,8 +33,8 @@ export default function HomePage() {
             <Link href="/consultation" className="btn">
               New client? Book a free consultation
             </Link>
-            <Link href="/portal/login" className="btn btn-secondary">
-              Existing client? Log in
+            <Link href={secondCta.href} className="btn btn-secondary">
+              {secondCta.label}
             </Link>
           </div>
         </div>

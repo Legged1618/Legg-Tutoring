@@ -27,17 +27,11 @@ export default async function AdminSessionsPage() {
   }
 
   const admin = createAdminClient();
-  const { data: sessions } = await admin
+  const { data: upcoming } = await admin
     .from("sessions")
     .select("*, clients(full_name, email, phone)")
+    .in("status", ["scheduled", "pending_payment"])
     .order("scheduled_at", { ascending: true });
-
-  const upcoming = (sessions ?? []).filter((s: Record<string, any>) =>
-    ["scheduled", "pending_payment"].includes(s.status)
-  );
-  const past = (sessions ?? []).filter(
-    (s: Record<string, any>) => !["scheduled", "pending_payment"].includes(s.status)
-  );
 
   return (
     <>
@@ -49,8 +43,8 @@ export default async function AdminSessionsPage() {
         </div>
 
         <div className="session-list">
-          {upcoming.length === 0 && <p className="notice">No upcoming sessions.</p>}
-          {upcoming.map((s: Record<string, any>) => {
+          {(upcoming ?? []).length === 0 && <p className="notice">No upcoming sessions.</p>}
+          {(upcoming ?? []).map((s: Record<string, any>) => {
             const client = s.clients as {
               full_name: string | null;
               email: string;
@@ -75,31 +69,6 @@ export default async function AdminSessionsPage() {
                     Cancel
                   </button>
                 </form>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="section-head" style={{ marginTop: 48 }}>
-          <h2>Past / cancelled sessions</h2>
-        </div>
-        <div className="session-list">
-          {past.length === 0 && <p className="notice">Nothing yet.</p>}
-          {past.map((s: Record<string, any>) => {
-            const client = s.clients as { full_name: string | null; email: string } | null;
-            return (
-              <div className="session-row" key={s.id}>
-                <div>
-                  <strong>{client?.full_name || client?.email || "Client"}</strong>
-                  <div className="meta">
-                    {new Date(s.scheduled_at).toLocaleString()} &middot; $
-                    {(s.rate_cents / 100).toFixed(2)}
-                    {s.refund_cents > 0
-                      ? ` · $${(s.refund_cents / 100).toFixed(2)} refunded`
-                      : ""}
-                  </div>
-                </div>
-                <div className="meta">{s.status.replaceAll("_", " ")}</div>
               </div>
             );
           })}
