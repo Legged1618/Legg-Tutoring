@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
-import SiteHeader from "@/components/SiteHeader";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -20,7 +19,6 @@ export default async function ProfilePage() {
   if (isTutor) {
     return (
       <>
-        <SiteHeader />
         <div className="portal-shell wrap">
           <div className="section-head">
             <h2>Profile</h2>
@@ -41,7 +39,6 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <SiteHeader />
       <div className="portal-shell wrap">
         <div className="section-head">
           <h2>Profile</h2>

@@ -121,7 +121,7 @@ export default function AdminCalendarGrid({
       </div>
 
       {selectedDay && !selectedEntry && (
-        <div className="cal-detail-panel">
+        <div className="cal-detail-panel page-fade" key={selectedDay.dateKey}>
           <div className="cal-detail-header">
             <h4>
               {selectedDay.weekdayLabel}, {selectedDay.monthLabel} {selectedDay.dayNumber}
@@ -148,7 +148,7 @@ export default function AdminCalendarGrid({
       )}
 
       {selectedDay && selectedEntry && (
-        <div className="cal-detail-panel">
+        <div className="cal-detail-panel page-fade" key={selectedEntry.id}>
           <div className="cal-detail-header">
             <button type="button" className="cal-back-btn" onClick={() => setSelectedEntryId(null)}>
               &larr; Back to {selectedDay.weekdayLabel}, {selectedDay.monthLabel} {selectedDay.dayNumber}

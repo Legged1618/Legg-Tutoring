@@ -65,37 +65,6 @@ Legg Tutoring`,
   });
 }
 
-export async function sendConsultationNoticeToTutor(c: ConsultationDetails) {
-  const when = formatWhen(c.scheduledAt);
-  const scriptUrl = process.env.CALL_SCRIPT_URL;
-  const tutorEmail = process.env.TUTOR_EMAIL;
-
-  if (!tutorEmail) return;
-
-  await getResend().emails.send({
-    from: fromAddress(),
-    to: tutorEmail,
-    subject: `New consultation booked: ${c.fullName} — ${when}`,
-    text: `New free consultation booked.
-
-When: ${when}
-Name: ${c.fullName}
-Email: ${c.email}
-Phone: ${c.phone || "(not provided)"}
-Subject / grade level: ${c.subject || "(not provided)"}
-Notes from them: ${c.notes || "(none)"}
-
-${c.email} already has portal access (every consultation is auto-approved) -- no action needed there.
-
-What to do:
-1. ${scriptUrl ? `Open the call script: ${scriptUrl}` : "Open your call script (set CALL_SCRIPT_URL in env to link it here automatically)."}
-2. At the scheduled time, call/video with ${c.fullName}.
-3. If it turns out NOT to be a good fit, go to /portal/admin and mark this consultation "Not a fit" to revoke their portal access.
-
-Consultation ID: ${c.id}`,
-  });
-}
-
 export type SessionDetails = {
   id: string;
   scheduledAt: Date;
@@ -125,29 +94,3 @@ Legg Tutoring`,
   });
 }
 
-export async function sendSessionNoticeToTutor(s: SessionDetails) {
-  const when = formatWhen(s.scheduledAt);
-  const tutorEmail = process.env.TUTOR_EMAIL;
-  if (!tutorEmail) return;
-
-  await getResend().emails.send({
-    from: fromAddress(),
-    to: tutorEmail,
-    subject: `New paid session: ${s.clientName || s.clientEmail} — ${when}`,
-    text: `New paid session booked and confirmed (payment already received).
-
-When: ${when}
-Duration: ${s.durationMinutes} min
-Rate: $${(s.rateCents / 100).toFixed(2)}
-Client: ${s.clientName || "(no name on file)"}
-Email: ${s.clientEmail}
-Phone: ${s.clientPhone || "(not provided)"}
-
-What to do:
-1. Nothing until the session -- it's already paid, no action needed.
-2. At the scheduled time, join the call with ${s.clientName || s.clientEmail}.
-3. To cancel this session yourself, use /portal/admin/sessions (triggers an automatic full refund).
-
-Session ID: ${s.id}`,
-  });
-}
