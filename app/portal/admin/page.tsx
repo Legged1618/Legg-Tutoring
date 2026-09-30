@@ -27,17 +27,11 @@ export default async function AdminPage() {
   }
 
   const admin = createAdminClient();
-  const { data: consultations } = await admin
+  const { data: pending } = await admin
     .from("consultations")
     .select("*")
+    .eq("outcome", "pending")
     .order("scheduled_at", { ascending: true });
-
-  const pending = (consultations ?? []).filter(
-    (c: Record<string, any>) => c.outcome === "pending"
-  );
-  const decided = (consultations ?? []).filter(
-    (c: Record<string, any>) => c.outcome !== "pending"
-  );
 
   return (
     <>
@@ -52,8 +46,8 @@ export default async function AdminPage() {
         </div>
 
         <div className="session-list">
-          {pending.length === 0 && <p className="notice">Nothing pending.</p>}
-          {pending.map((c: Record<string, any>) => (
+          {(pending ?? []).length === 0 && <p className="notice">Nothing pending.</p>}
+          {(pending ?? []).map((c: Record<string, any>) => (
             <div className="session-row" key={c.id}>
               <div>
                 <strong>{c.full_name}</strong>
@@ -77,23 +71,6 @@ export default async function AdminPage() {
                   </button>
                 </form>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="section-head" style={{ marginTop: 48 }}>
-          <h2>Past consultations</h2>
-        </div>
-        <div className="session-list">
-          {decided.map((c: Record<string, any>) => (
-            <div className="session-row" key={c.id}>
-              <div>
-                <strong>{c.full_name}</strong>
-                <div className="meta">
-                  {new Date(c.scheduled_at).toLocaleString()} &middot; {c.email}
-                </div>
-              </div>
-              <div className="meta">{c.outcome.replaceAll("_", " ")}</div>
             </div>
           ))}
         </div>

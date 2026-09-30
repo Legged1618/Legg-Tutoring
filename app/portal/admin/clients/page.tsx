@@ -2,6 +2,34 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
 
+function ClientRow({ c }: { c: Record<string, any> }) {
+  return (
+    <div className="session-row">
+      <div>
+        <strong>{c.full_name || "(no name on file)"}</strong>
+        <div className="meta">
+          {c.email}
+          {c.phone ? ` · ${c.phone}` : ""}
+        </div>
+        <div className="meta">
+          Signed up {new Date(c.created_at).toLocaleDateString()}
+          {c.auth_user_id ? "" : " · never logged in"}
+        </div>
+      </div>
+      <form action={`/api/clients/${c.id}/approval`} method="post">
+        <input type="hidden" name="approved" value={c.approved ? "false" : "true"} />
+        <button
+          className={c.approved ? "btn btn-secondary" : "btn"}
+          type="submit"
+          style={{ width: "auto" }}
+        >
+          {c.approved ? "Revoke" : "Approve"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default async function AdminClientsPage() {
   const supabase = await createClient();
   const {
@@ -25,36 +53,58 @@ export default async function AdminClientsPage() {
   }
 
   const admin = createAdminClient();
-  const { data: clients } = await admin
-    .from("clients")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const [{ data: clients }, { data: consultations }] = await Promise.all([
+    admin.from("clients").select("*").order("created_at", { ascending: false }),
+    admin.from("consultations").select("email"),
+  ]);
+
+  const consultationEmails = new Set(
+    ((consultations ?? []) as { email: string }[]).map((c) => c.email)
+  );
+
+  const rows = ((clients ?? []) as Record<string, any>[]).filter(
+    (c) => c.email !== process.env.TUTOR_EMAIL
+  );
+
+  const approved = rows.filter((c) => c.approved);
+  const bookedNotApproved = rows.filter((c) => !c.approved && consultationEmails.has(c.email));
+  const signedUpOnly = rows.filter((c) => !c.approved && !consultationEmails.has(c.email));
 
   return (
     <div className="portal-shell wrap">
       <AdminTabs />
       <div className="section-head">
         <h2>Manage clients</h2>
-        <p>Everyone who&apos;s ever logged in or booked a consultation -- a directory, not an action list.</p>
+        <p>Everyone who&apos;s ever logged in or booked a consultation, sorted by where they stand.</p>
       </div>
 
+      <div className="section-head" style={{ marginTop: 8 }}>
+        <h3>Approved for the client portal ({approved.length})</h3>
+      </div>
       <div className="session-list">
-        {(clients ?? []).length === 0 && <p className="notice">No one yet.</p>}
-        {(clients ?? []).map((c: Record<string, any>) => (
-          <div className="session-row" key={c.id}>
-            <div>
-              <strong>{c.full_name || "(no name on file)"}</strong>
-              <div className="meta">
-                {c.email}
-                {c.phone ? ` · ${c.phone}` : ""}
-              </div>
-              <div className="meta">
-                Signed up {new Date(c.created_at).toLocaleDateString()}
-                {c.auth_user_id ? "" : " · never logged in"}
-              </div>
-            </div>
-            <div className="meta">{c.approved ? "Approved" : "Not approved"}</div>
-          </div>
+        {approved.length === 0 && <p className="notice">No one yet.</p>}
+        {approved.map((c) => (
+          <ClientRow c={c} key={c.id} />
+        ))}
+      </div>
+
+      <div className="section-head" style={{ marginTop: 48 }}>
+        <h3>Booked a consultation, not yet approved ({bookedNotApproved.length})</h3>
+      </div>
+      <div className="session-list">
+        {bookedNotApproved.length === 0 && <p className="notice">No one yet.</p>}
+        {bookedNotApproved.map((c) => (
+          <ClientRow c={c} key={c.id} />
+        ))}
+      </div>
+
+      <div className="section-head" style={{ marginTop: 48 }}>
+        <h3>Signed up only, no consultation on file ({signedUpOnly.length})</h3>
+      </div>
+      <div className="session-list">
+        {signedUpOnly.length === 0 && <p className="notice">No one yet.</p>}
+        {signedUpOnly.map((c) => (
+          <ClientRow c={c} key={c.id} />
         ))}
       </div>
     </div>
