@@ -43,7 +43,7 @@ export default async function AdminSessionsPage() {
 
   return (
     <>
-      <PortalHeader />
+      <PortalHeader isTutor />
       <div className="portal-shell wrap">
         <AdminTabs />
         <div className="section-head">

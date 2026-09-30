@@ -12,6 +12,25 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Reusable fade-in, applied per navigation in the portal (see
+   PageTransition.tsx) and reusable anywhere else content should fade in
+   -- e.g. landing-page sections later. Opacity-only: a transform here
+   would break header's position: fixed (new containing block). */
+.page-fade {
+  animation: page-fade-in 0.35s ease both;
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-fade {
+    animation: none;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
