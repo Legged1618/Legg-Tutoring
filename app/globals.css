@@ -110,6 +110,84 @@ header {
   }
 }
 
+/* ---------- Account menu ---------- */
+.account-menu {
+  position: relative;
+}
+
+.account-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--brass);
+  color: var(--card);
+  border: none;
+  font-family: 'Spectral', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(29, 39, 51, 0.12);
+  overflow: hidden;
+  z-index: 30;
+}
+
+.account-dropdown-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.account-dropdown-header strong {
+  font-family: 'Spectral', serif;
+  font-size: 0.95rem;
+}
+
+.account-dropdown-header span {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  word-break: break-all;
+}
+
+.account-dropdown-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.account-dropdown-links a,
+.account-dropdown-links button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 11px 16px;
+  font: inherit;
+  font-size: 0.88rem;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.account-dropdown-links a:hover,
+.account-dropdown-links button:hover {
+  background: var(--paper);
+}
+
 /* ---------- Slides ---------- */
 .slide {
   min-height: 100vh;

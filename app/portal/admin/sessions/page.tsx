@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import PortalHeader from "@/components/PortalHeader";
+import SiteHeader from "@/components/SiteHeader";
 import AdminTabs from "@/components/AdminTabs";
 
 export default async function AdminSessionsPage() {
@@ -20,7 +20,7 @@ export default async function AdminSessionsPage() {
   if (!isTutor) {
     return (
       <>
-        <PortalHeader />
+        <SiteHeader />
         <div className="portal-shell wrap">
           <p className="notice error">This page is only for the tutor account.</p>
         </div>
@@ -43,7 +43,7 @@ export default async function AdminSessionsPage() {
 
   return (
     <>
-      <PortalHeader isTutor />
+      <SiteHeader />
       <div className="portal-shell wrap">
         <AdminTabs />
         <div className="section-head">
