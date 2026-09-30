@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import PortalHeader from "@/components/PortalHeader";
+import AdminTabs from "@/components/AdminTabs";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -45,63 +45,61 @@ export default async function AdminPage() {
     <>
       <PortalHeader />
       <div className="portal-shell wrap">
-      <div className="section-head">
-        <h2>Consultations</h2>
-        <p>
-          Everyone is auto-approved for portal access when they book. Mark
-          &quot;Not a fit&quot; after a call to revoke that.
-        </p>
-        <p style={{ marginTop: 10 }}>
-          <Link href="/portal/admin/sessions">View all clients&apos; paid sessions &rarr;</Link>
-        </p>
-      </div>
+        <AdminTabs />
+        <div className="section-head">
+          <h2>Consultations</h2>
+          <p>
+            Everyone is auto-approved for portal access when they book. Mark
+            &quot;Not a fit&quot; after a call to revoke that.
+          </p>
+        </div>
 
-      <div className="session-list">
-        {pending.length === 0 && <p className="notice">Nothing pending.</p>}
-        {pending.map((c: Record<string, any>) => (
-          <div className="session-row" key={c.id}>
-            <div>
-              <strong>{c.full_name}</strong>
-              <div className="meta">
-                {new Date(c.scheduled_at).toLocaleString()} &middot; {c.email}
-                {c.phone ? ` · ${c.phone}` : ""}
+        <div className="session-list">
+          {pending.length === 0 && <p className="notice">Nothing pending.</p>}
+          {pending.map((c: Record<string, any>) => (
+            <div className="session-row" key={c.id}>
+              <div>
+                <strong>{c.full_name}</strong>
+                <div className="meta">
+                  {new Date(c.scheduled_at).toLocaleString()} &middot; {c.email}
+                  {c.phone ? ` · ${c.phone}` : ""}
+                </div>
+                {c.subject && <div className="meta">Subject: {c.subject}</div>}
               </div>
-              {c.subject && <div className="meta">Subject: {c.subject}</div>}
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <form action={`/api/consultations/${c.id}/outcome`} method="post">
-                <input type="hidden" name="outcome" value="good_fit" />
-                <button className="btn" type="submit" style={{ width: "auto" }}>
-                  Good fit
-                </button>
-              </form>
-              <form action={`/api/consultations/${c.id}/outcome`} method="post">
-                <input type="hidden" name="outcome" value="not_a_fit" />
-                <button className="btn btn-secondary" type="submit" style={{ width: "auto" }}>
-                  Not a fit
-                </button>
-              </form>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="section-head" style={{ marginTop: 48 }}>
-        <h2>Past consultations</h2>
-      </div>
-      <div className="session-list">
-        {decided.map((c: Record<string, any>) => (
-          <div className="session-row" key={c.id}>
-            <div>
-              <strong>{c.full_name}</strong>
-              <div className="meta">
-                {new Date(c.scheduled_at).toLocaleString()} &middot; {c.email}
+              <div style={{ display: "flex", gap: 8 }}>
+                <form action={`/api/consultations/${c.id}/outcome`} method="post">
+                  <input type="hidden" name="outcome" value="good_fit" />
+                  <button className="btn" type="submit" style={{ width: "auto" }}>
+                    Good fit
+                  </button>
+                </form>
+                <form action={`/api/consultations/${c.id}/outcome`} method="post">
+                  <input type="hidden" name="outcome" value="not_a_fit" />
+                  <button className="btn btn-secondary" type="submit" style={{ width: "auto" }}>
+                    Not a fit
+                  </button>
+                </form>
               </div>
             </div>
-            <div className="meta">{c.outcome.replaceAll("_", " ")}</div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+
+        <div className="section-head" style={{ marginTop: 48 }}>
+          <h2>Past consultations</h2>
+        </div>
+        <div className="session-list">
+          {decided.map((c: Record<string, any>) => (
+            <div className="session-row" key={c.id}>
+              <div>
+                <strong>{c.full_name}</strong>
+                <div className="meta">
+                  {new Date(c.scheduled_at).toLocaleString()} &middot; {c.email}
+                </div>
+              </div>
+              <div className="meta">{c.outcome.replaceAll("_", " ")}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );
