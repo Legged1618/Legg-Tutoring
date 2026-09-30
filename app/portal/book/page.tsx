@@ -1,5 +1,5 @@
 import SessionBooking from "@/components/SessionBooking";
-import PortalHeader from "@/components/PortalHeader";
+import SiteHeader from "@/components/SiteHeader";
 
 export default async function BookSessionPage({
   searchParams,
@@ -10,7 +10,7 @@ export default async function BookSessionPage({
 
   return (
     <>
-      <PortalHeader />
+      <SiteHeader />
       <div className="portal-shell wrap" style={{ display: "flex" }}>
         <div className="portal-card" style={{ maxWidth: 520 }}>
           <h1>Book a session</h1>

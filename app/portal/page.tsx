@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
-import PortalHeader from "@/components/PortalHeader";
+import SiteHeader from "@/components/SiteHeader";
 import PortalDashboardClient from "@/components/PortalDashboardClient";
 
 export default async function PortalDashboard({
@@ -39,7 +39,7 @@ export default async function PortalDashboard({
 
   return (
     <>
-      <PortalHeader />
+      <SiteHeader />
       <div className="portal-shell wrap">
         <div className="section-head">
           <h2>Your sessions</h2>

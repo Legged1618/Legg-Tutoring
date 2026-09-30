@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import PortalHeader from "@/components/PortalHeader";
+import SiteHeader from "@/components/SiteHeader";
 import AdminTabs from "@/components/AdminTabs";
 import AdminCalendarGrid, { type CalendarDay, type CalendarEntry } from "@/components/AdminCalendarGrid";
 import { buildConsultationChecklist, buildSessionChecklist } from "@/lib/bookingChecklist";
@@ -39,7 +39,7 @@ export default async function AdminCalendarPage({
   if (!isTutor) {
     return (
       <>
-        <PortalHeader />
+        <SiteHeader />
         <div className="portal-shell wrap">
           <p className="notice error">This page is only for the tutor account.</p>
         </div>
@@ -206,7 +206,7 @@ export default async function AdminCalendarPage({
 
   return (
     <>
-      <PortalHeader isTutor />
+      <SiteHeader />
       <div className="portal-shell wrap">
         <AdminTabs />
         <div className="section-head">
