@@ -25,12 +25,15 @@ const SLOT_STEP_MINUTES = 15;
 type Window = { weekday: number; start: string; end: string }; // weekday: 0=Sun..6=Sat, start/end: "HH:MM" 24h, in TUTOR_TIMEZONE
 
 // Nothing before noon, any day -- edit freely, just keep every start time >= "12:00".
+// Working day: 1pm-9pm Eastern, every day of the week.
 export const WEEKLY_AVAILABILITY: Window[] = [
-  { weekday: 1, start: "16:00", end: "19:00" }, // Monday
-  { weekday: 2, start: "16:00", end: "19:00" }, // Tuesday
-  { weekday: 3, start: "16:00", end: "19:00" }, // Wednesday
-  { weekday: 4, start: "16:00", end: "19:00" }, // Thursday
-  { weekday: 6, start: "12:00", end: "15:00" }, // Saturday
+  { weekday: 0, start: "13:00", end: "21:00" }, // Sunday
+  { weekday: 1, start: "13:00", end: "21:00" }, // Monday
+  { weekday: 2, start: "13:00", end: "21:00" }, // Tuesday
+  { weekday: 3, start: "13:00", end: "21:00" }, // Wednesday
+  { weekday: 4, start: "13:00", end: "21:00" }, // Thursday
+  { weekday: 5, start: "13:00", end: "21:00" }, // Friday
+  { weekday: 6, start: "13:00", end: "21:00" }, // Saturday
 ];
 
 export type BusyInterval = { start: Date; end: Date };
@@ -58,7 +61,7 @@ function tzOffsetMinutes(date: Date, timeZone: string): number {
   return (asUTC - date.getTime()) / 60000;
 }
 
-function zonedWallTimeToUtc(
+export function zonedWallTimeToUtc(
   year: number,
   month: number,
   day: number,

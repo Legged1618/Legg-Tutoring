@@ -6,11 +6,11 @@ Marketing site + one system for everything: free-consultation booking (no login)
 
 - `app/page.tsx` — the public marketing page, including an inline consultation-booking widget (`components/ConsultationBooking.tsx`). This replaced the old Cal.com embed — no account required to book a free 15-minute call.
 - `app/portal/*` — the client portal: magic-link login, dashboard of upcoming sessions, booking form. Anyone who's booked a consultation can log in immediately (see below).
-- `app/portal/admin/*` — the tutor-only admin portal, tabbed: **Calendar** (agenda view of everything upcoming, click any item to expand its "what to do" checklist), **Consultations** ("Good fit" / "Not a fit" -- since everyone is auto-approved at booking, this is really a revoke tool), **Sessions** (every client's paid sessions, can cancel any), **Scripts** (placeholder linking to the shared doc -- real content is next phase). Gated entirely by `TUTOR_EMAIL`; nobody else can reach any of it.
+- `app/portal/admin/*` — the tutor-only admin portal, tabbed: **Calendar** (rolling 30-day month-grid, color-coded by booking type and whether it's upcoming or resolved; click a day to see what's on it, click a booking to open its checklist/script and manage it), **Consultations** ("Good fit" / "Not a fit" -- since everyone is auto-approved at booking, this is really a revoke tool), **Sessions** (every client's paid sessions, can cancel any), **Scripts** (placeholder linking to the shared doc -- real content is next phase). Gated entirely by `TUTOR_EMAIL`; nobody else can reach any of it.
 - `app/api/*` — server-side logic: consultation availability + booking, session booking, Stripe Checkout + webhook, cancellation/refunds.
 - `supabase/schema.sql` — the database schema (clients, sessions, consultations) with row-level security.
 - `lib/pricing.ts` — **all rates and the late-cancellation fee live here.** Currently $65/hr flat, virtual-only, $10 late-cancellation fee.
-- `lib/availability.ts` — **your weekly availability for free consultations lives here** (`WEEKLY_AVAILABILITY`). Edit the days/times to match your real schedule.
+- `lib/availability.ts` — **your weekly working hours live here** (`WEEKLY_AVAILABILITY`), shared by both consultations and paid sessions. Currently 1pm-9pm every day, `TUTOR_TIMEZONE`. Edit to match your real schedule.
 
 This is a scaffold: the structure and logic are in place, but it needs real accounts (Supabase, Stripe, Resend, Vercel) connected before it does anything live.
 
@@ -65,7 +65,7 @@ This is one-way and read-only by design: it shows what's booked, but cancelling/
 ### 6. Rates and availability
 
 - `lib/pricing.ts` — `virtualHourlyRateCents` (currently 6500 = $65/hr) and `lateCancelFlatFeeCents` (currently 1000 = $10), both in cents.
-- `lib/availability.ts` — edit `WEEKLY_AVAILABILITY` to your real consultation hours (day of week + start/end time, in `TUTOR_TIMEZONE`).
+- `lib/availability.ts` — edit `WEEKLY_AVAILABILITY` to your real working hours (day of week + start/end time, in `TUTOR_TIMEZONE`). Applies to both consultations and paid sessions.
 
 These match the "Consultation Script & Policy" doc.
 
@@ -84,4 +84,4 @@ npm run dev
 - Revoking access ("Not a fit") from `/portal/admin` requires you to be signed into the portal yourself as `TUTOR_EMAIL`.
 - No reschedule flow for consultations — a client who needs a different time cancels via their email link and books a new slot; there's no "change time" in place, just cancel + rebook.
 - `TUTOR_EMAIL` decides who has admin access -- update it in your env (and log in with that email going forward) to change who that is. Nothing else in the code needs to change.
-- The admin Calendar view is an in-app agenda list (grouped by day, click to expand), not a full month-grid calendar widget -- deliberately simpler to build/maintain; worth revisiting if that's ever not enough.
+- The admin Calendar view is a rolling 30-day grid starting from today (not locked to calendar-month boundaries), with Previous/Next paging by 30 days. Day cells show colored dots (brass = consultation, teal = session; muted shade = resolved/past, full shade = upcoming); click a day for its list, click a booking for its checklist, script link, and management actions (approve/deny, cancel).
