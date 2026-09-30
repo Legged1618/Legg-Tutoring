@@ -1,21 +1,14 @@
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import SiteHeader from "@/components/SiteHeader";
 import AdminTabs from "@/components/AdminTabs";
 import AdminCalendarGrid, { type CalendarDay, type CalendarEntry } from "@/components/AdminCalendarGrid";
 import { buildConsultationChecklist, buildSessionChecklist } from "@/lib/bookingChecklist";
-import { TUTOR_TIMEZONE, zonedWallTimeToUtc, shiftDateKey } from "@/lib/availability";
+import { TUTOR_TIMEZONE } from "@/lib/availability";
+import { computeCalendarWindow, dateKeyFor } from "@/lib/calendarWindow";
 
-const WINDOW_DAYS = 30;
-
-function todayKeyInTutorTz(now: Date): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: TUTOR_TIMEZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
-}
+// A multiple of 7 -- keeps Previous/Next always landing on a Monday,
+// instead of drifting off the week grid a couple days at a time.
+const WINDOW_DAYS = 28;
 
 export default async function AdminCalendarPage({
   searchParams,
@@ -38,47 +31,15 @@ export default async function AdminCalendarPage({
 
   if (!isTutor) {
     return (
-      <>
-        <SiteHeader />
-        <div className="portal-shell wrap">
-          <p className="notice error">This page is only for the tutor account.</p>
-        </div>
-      </>
+      <div className="portal-shell wrap">
+        <p className="notice error">This page is only for the tutor account.</p>
+      </div>
     );
   }
 
   const now = new Date();
-  const todayKey = todayKeyInTutorTz(now);
-  const windowStartKey = start && /^\d{4}-\d{2}-\d{2}$/.test(start) ? start : todayKey;
-
-  // 31 boundaries -> 30 day buckets, each the real UTC instant of local
-  // midnight for that day (so DST transitions inside the window are exact,
-  // not just "+24h" guesses).
-  const boundaries: Date[] = [];
-  const dayMeta: { dateKey: string; dayNumber: number; weekdayLabel: string; monthLabel: string }[] = [];
-  const [startY, startM, startD] = windowStartKey.split("-").map(Number);
-  for (let i = 0; i <= WINDOW_DAYS; i++) {
-    const anchor = new Date(Date.UTC(startY, startM - 1, startD + i));
-    const y = anchor.getUTCFullYear();
-    const m = anchor.getUTCMonth() + 1;
-    const d = anchor.getUTCDate();
-    boundaries.push(zonedWallTimeToUtc(y, m, d, 0, 0, TUTOR_TIMEZONE));
-    if (i < WINDOW_DAYS) {
-      const dateKey = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-      dayMeta.push({
-        dateKey,
-        dayNumber: d,
-        weekdayLabel: boundaries[i].toLocaleDateString("en-US", {
-          timeZone: TUTOR_TIMEZONE,
-          weekday: "short",
-        }),
-        monthLabel: boundaries[i].toLocaleDateString("en-US", {
-          timeZone: TUTOR_TIMEZONE,
-          month: "short",
-        }),
-      });
-    }
-  }
+  const { windowStartKey, mondayKey, boundaries, dayMeta, rangeLabel, prevKey, nextKey } =
+    computeCalendarWindow(WINDOW_DAYS, start, now);
 
   const rangeStart = boundaries[0].toISOString();
   const rangeEnd = boundaries[WINDOW_DAYS].toISOString();
@@ -105,15 +66,6 @@ export default async function AdminCalendarPage({
   ]);
 
   const entriesByDate = new Map<string, CalendarEntry[]>();
-
-  function dateKeyFor(date: Date): string {
-    return new Intl.DateTimeFormat("en-CA", {
-      timeZone: TUTOR_TIMEZONE,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(date);
-  }
 
   function push(dateKey: string, entry: CalendarEntry) {
     if (!entriesByDate.has(dateKey)) entriesByDate.set(dateKey, []);
@@ -184,7 +136,7 @@ export default async function AdminCalendarPage({
     );
     return {
       ...meta,
-      isToday: meta.dateKey === todayKey,
+      isToday: meta.dateKey === dateKeyFor(now),
       isOff: Boolean(off),
       offReason: off?.reason ?? undefined,
       entries: (entriesByDate.get(meta.dateKey) ?? []).sort(
@@ -193,98 +145,84 @@ export default async function AdminCalendarPage({
     };
   });
 
-  const rangeLabel = `${boundaries[0].toLocaleDateString("en-US", {
-    timeZone: TUTOR_TIMEZONE,
-    month: "short",
-    day: "numeric",
-  })} – ${boundaries[WINDOW_DAYS - 1].toLocaleDateString("en-US", {
-    timeZone: TUTOR_TIMEZONE,
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })}`;
-
   return (
-    <>
-      <SiteHeader />
-      <div className="portal-shell wrap">
-        <AdminTabs />
-        <div className="section-head">
-          <h2>Calendar</h2>
-          <p>Click a day to see what&apos;s on it, then click a booking to manage it.</p>
-        </div>
-
-        <AdminCalendarGrid
-          days={days}
-          rangeLabel={rangeLabel}
-          prevHref={`/portal/admin/calendar?start=${shiftDateKey(windowStartKey, -WINDOW_DAYS)}`}
-          nextHref={`/portal/admin/calendar?start=${shiftDateKey(windowStartKey, WINDOW_DAYS)}`}
-          todayHref="/portal/admin/calendar"
-          isTodayWindow={windowStartKey === todayKey}
-        />
-
-        <div className="time-off-panel">
-          <div className="section-head" style={{ marginBottom: 16 }}>
-            <h3>Time off</h3>
-            <p>Block a day (or stretch of days) off your own schedule. Doesn&apos;t touch anything already booked.</p>
-          </div>
-
-          <form
-            action={`/api/time-off?next=${encodeURIComponent(`/portal/admin/calendar?start=${windowStartKey}`)}`}
-            method="post"
-            className="time-off-form"
-          >
-            <div className="field">
-              <label htmlFor="startDate">From</label>
-              <input id="startDate" name="startDate" type="date" required />
-            </div>
-            <div className="field">
-              <label htmlFor="endDate">Through</label>
-              <input id="endDate" name="endDate" type="date" required />
-            </div>
-            <div className="field">
-              <label htmlFor="reason">Reason (optional)</label>
-              <input id="reason" name="reason" type="text" placeholder="e.g. vacation" />
-            </div>
-            <button className="btn" type="submit" style={{ width: "auto" }}>
-              Block this time
-            </button>
-          </form>
-
-          {timeOffRows.length > 0 && (
-            <ul className="time-off-list">
-              {timeOffRows.map((t) => (
-                <li key={t.id}>
-                  <span>
-                    {new Date(t.starts_at).toLocaleDateString("en-US", {
-                      timeZone: TUTOR_TIMEZONE,
-                      month: "short",
-                      day: "numeric",
-                    })}
-                    {" – "}
-                    {new Date(new Date(t.ends_at).getTime() - 1).toLocaleDateString("en-US", {
-                      timeZone: TUTOR_TIMEZONE,
-                      month: "short",
-                      day: "numeric",
-                    })}
-                    {t.reason ? ` · ${t.reason}` : ""}
-                  </span>
-                  <form
-                    action={`/api/time-off/${t.id}/delete?next=${encodeURIComponent(
-                      `/portal/admin/calendar?start=${windowStartKey}`
-                    )}`}
-                    method="post"
-                  >
-                    <button className="cal-close-btn" type="submit">
-                      Remove
-                    </button>
-                  </form>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+    <div className="portal-shell wrap">
+      <AdminTabs />
+      <div className="section-head">
+        <h2>Calendar</h2>
+        <p>Click a day to see what&apos;s on it, then click a booking to manage it.</p>
       </div>
-    </>
+
+      <AdminCalendarGrid
+        days={days}
+        rangeLabel={rangeLabel}
+        prevHref={`/portal/admin/calendar?start=${prevKey}`}
+        nextHref={`/portal/admin/calendar?start=${nextKey}`}
+        todayHref="/portal/admin/calendar"
+        isTodayWindow={windowStartKey === mondayKey}
+      />
+
+      <div className="time-off-panel">
+        <div className="section-head" style={{ marginBottom: 16 }}>
+          <h3>Time off</h3>
+          <p>Block a day (or stretch of days) off your own schedule. Doesn&apos;t touch anything already booked.</p>
+        </div>
+
+        <form
+          action={`/api/time-off?next=${encodeURIComponent(`/portal/admin/calendar?start=${windowStartKey}`)}`}
+          method="post"
+          className="time-off-form"
+        >
+          <div className="field">
+            <label htmlFor="startDate">From</label>
+            <input id="startDate" name="startDate" type="date" required />
+          </div>
+          <div className="field">
+            <label htmlFor="endDate">Through</label>
+            <input id="endDate" name="endDate" type="date" required />
+          </div>
+          <div className="field">
+            <label htmlFor="reason">Reason (optional)</label>
+            <input id="reason" name="reason" type="text" placeholder="e.g. vacation" />
+          </div>
+          <button className="btn" type="submit" style={{ width: "auto" }}>
+            Block this time
+          </button>
+        </form>
+
+        {timeOffRows.length > 0 && (
+          <ul className="time-off-list">
+            {timeOffRows.map((t) => (
+              <li key={t.id}>
+                <span>
+                  {new Date(t.starts_at).toLocaleDateString("en-US", {
+                    timeZone: TUTOR_TIMEZONE,
+                    month: "short",
+                    day: "numeric",
+                  })}
+                  {" – "}
+                  {new Date(new Date(t.ends_at).getTime() - 1).toLocaleDateString("en-US", {
+                    timeZone: TUTOR_TIMEZONE,
+                    month: "short",
+                    day: "numeric",
+                  })}
+                  {t.reason ? ` · ${t.reason}` : ""}
+                </span>
+                <form
+                  action={`/api/time-off/${t.id}/delete?next=${encodeURIComponent(
+                    `/portal/admin/calendar?start=${windowStartKey}`
+                  )}`}
+                  method="post"
+                >
+                  <button className="cal-close-btn" type="submit">
+                    Remove
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }

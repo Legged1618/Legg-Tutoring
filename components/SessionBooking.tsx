@@ -11,7 +11,7 @@ type SlotsResponse = {
   durationMinutes: number;
 };
 
-export default function SessionBooking() {
+export default function SessionBooking({ initialDate }: { initialDate?: string } = {}) {
   const [durationMinutes, setDurationMinutes] = useState<(typeof DURATIONS)[number]>(60);
   const [data, setData] = useState<SlotsResponse | null>(null);
   const [loadError, setLoadError] = useState(false);
@@ -37,6 +37,15 @@ export default function SessionBooking() {
     loadSlots(durationMinutes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [durationMinutes]);
+
+  const slots = data
+    ? initialDate
+      ? data.slots.filter(
+          (iso) =>
+            new Date(iso).toLocaleDateString("en-CA", { timeZone: data.timezone }) === initialDate
+        )
+      : data.slots
+    : [];
 
   async function handleConfirm() {
     if (!selected) return;
@@ -87,16 +96,17 @@ export default function SessionBooking() {
 
       {!loadError && !data && <p className="notice">Loading available times&hellip;</p>}
 
-      {!loadError && data && data.slots.length === 0 && (
+      {!loadError && data && slots.length === 0 && (
         <p className="notice">
-          No open times for that length in the next couple weeks &mdash; try a shorter session or
-          check back soon.
+          {initialDate
+            ? "No open times that day for that length — try a different length or date."
+            : "No open times for that length in the next couple weeks — try a shorter session or check back soon."}
         </p>
       )}
 
-      {!loadError && data && data.slots.length > 0 && !selected && (
+      {!loadError && data && slots.length > 0 && !selected && (
         <div className="slot-days">
-          {groupSlotsByDay(data.slots, data.timezone).map(([day, isoSlots]) => (
+          {groupSlotsByDay(slots, data.timezone).map(([day, isoSlots]) => (
             <div className="slot-day" key={day}>
               <h4>{day}</h4>
               <div className="slot-buttons">

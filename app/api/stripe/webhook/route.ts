@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
-import { sendSessionConfirmationToClient, sendSessionNoticeToTutor } from "@/lib/email";
+import { sendSessionConfirmationToClient } from "@/lib/email";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -61,10 +61,7 @@ export async function POST(request: Request) {
           clientPhone: client?.phone ?? null,
         };
         try {
-          await Promise.all([
-            sendSessionConfirmationToClient(details),
-            sendSessionNoticeToTutor(details),
-          ]);
+          await sendSessionConfirmationToClient(details);
         } catch (err) {
           console.error("Session confirmation email failed to send", err);
         }

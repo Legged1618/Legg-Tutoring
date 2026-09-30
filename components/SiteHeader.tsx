@@ -11,9 +11,18 @@ import AccountMenu from "@/components/AccountMenu";
  */
 export default async function SiteHeader() {
   const supabase = await createClient();
+  // getSession() here, not getUser(): the proxy middleware already runs
+  // supabase.auth.getUser() (a real network round-trip to revalidate the
+  // token) on every request before this ever renders, so the cookies are
+  // already server-verified by the time we get here. This is purely
+  // display logic (which menu to show) -- every actual access-control
+  // decision still uses its own getUser() call, unchanged. Avoiding a
+  // second redundant auth round-trip on every single page load was a
+  // real, measurable chunk of the portal feeling slow.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   if (!user) {
     return (

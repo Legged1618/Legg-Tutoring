@@ -7,7 +7,8 @@ const TABS = [
   { href: "/portal/admin/calendar", label: "Calendar" },
   { href: "/portal/admin", label: "Consultations" },
   { href: "/portal/admin/sessions", label: "Sessions" },
-  { href: "/portal/admin/scripts", label: "Scripts" },
+  { href: "/portal/admin/clients", label: "Manage clients" },
+  { href: "/portal/admin/notifications", label: "Notifications" },
 ];
 
 export default function AdminTabs() {

@@ -9,7 +9,6 @@ import { fetchBusyIntervals } from "@/lib/busyIntervals";
 import { setClientApproval } from "@/lib/clients";
 import {
   sendConsultationConfirmationToClient,
-  sendConsultationNoticeToTutor,
 } from "@/lib/email";
 
 export async function POST(request: Request) {
@@ -92,10 +91,7 @@ export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
 
   try {
-    await Promise.all([
-      sendConsultationConfirmationToClient(details, origin),
-      sendConsultationNoticeToTutor(details),
-    ]);
+    await sendConsultationConfirmationToClient(details, origin);
   } catch (err) {
     // Booking already succeeded; don't fail the request over email delivery.
     console.error("Consultation email failed to send", err);
