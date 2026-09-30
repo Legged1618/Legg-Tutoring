@@ -4,7 +4,7 @@ import PortalHeader from "@/components/PortalHeader";
 import AdminTabs from "@/components/AdminTabs";
 import AdminCalendarGrid, { type CalendarDay, type CalendarEntry } from "@/components/AdminCalendarGrid";
 import { buildConsultationChecklist, buildSessionChecklist } from "@/lib/bookingChecklist";
-import { TUTOR_TIMEZONE, zonedWallTimeToUtc } from "@/lib/availability";
+import { TUTOR_TIMEZONE, zonedWallTimeToUtc, shiftDateKey } from "@/lib/availability";
 
 const WINDOW_DAYS = 30;
 
@@ -15,14 +15,6 @@ function todayKeyInTutorTz(now: Date): string {
     month: "2-digit",
     day: "2-digit",
   }).format(now);
-}
-
-function shiftKey(dateKey: string, days: number): string {
-  const [y, m, d] = dateKey.split("-").map(Number);
-  const shifted = new Date(Date.UTC(y, m - 1, d + days));
-  return `${shifted.getUTCFullYear()}-${String(shifted.getUTCMonth() + 1).padStart(2, "0")}-${String(
-    shifted.getUTCDate()
-  ).padStart(2, "0")}`;
 }
 
 export default async function AdminCalendarPage({
@@ -93,7 +85,7 @@ export default async function AdminCalendarPage({
   const scriptUrl = process.env.CALL_SCRIPT_URL;
 
   const admin = createAdminClient();
-  const [{ data: consultations }, { data: sessions }] = await Promise.all([
+  const [{ data: consultations }, { data: sessions }, { data: timeOff }] = await Promise.all([
     admin
       .from("consultations")
       .select("*")
@@ -104,6 +96,12 @@ export default async function AdminCalendarPage({
       .select("*, clients(full_name, email, phone)")
       .gte("scheduled_at", rangeStart)
       .lt("scheduled_at", rangeEnd),
+    admin
+      .from("time_off")
+      .select("*")
+      .lt("starts_at", rangeEnd)
+      .gt("ends_at", rangeStart)
+      .order("starts_at", { ascending: true }),
   ]);
 
   const entriesByDate = new Map<string, CalendarEntry[]>();
@@ -171,13 +169,29 @@ export default async function AdminCalendarPage({
     });
   }
 
-  const days: CalendarDay[] = dayMeta.map((meta) => ({
-    ...meta,
-    isToday: meta.dateKey === todayKey,
-    entries: (entriesByDate.get(meta.dateKey) ?? []).sort(
-      (a, b) => new Date(a.startIso).getTime() - new Date(b.startIso).getTime()
-    ),
-  }));
+  const timeOffRows = (timeOff ?? []) as {
+    id: string;
+    starts_at: string;
+    ends_at: string;
+    reason: string | null;
+  }[];
+
+  const days: CalendarDay[] = dayMeta.map((meta, i) => {
+    const dayStart = boundaries[i];
+    const dayEnd = boundaries[i + 1];
+    const off = timeOffRows.find(
+      (t) => new Date(t.starts_at).getTime() < dayEnd.getTime() && new Date(t.ends_at).getTime() > dayStart.getTime()
+    );
+    return {
+      ...meta,
+      isToday: meta.dateKey === todayKey,
+      isOff: Boolean(off),
+      offReason: off?.reason ?? undefined,
+      entries: (entriesByDate.get(meta.dateKey) ?? []).sort(
+        (a, b) => new Date(a.startIso).getTime() - new Date(b.startIso).getTime()
+      ),
+    };
+  });
 
   const rangeLabel = `${boundaries[0].toLocaleDateString("en-US", {
     timeZone: TUTOR_TIMEZONE,
@@ -203,11 +217,73 @@ export default async function AdminCalendarPage({
         <AdminCalendarGrid
           days={days}
           rangeLabel={rangeLabel}
-          prevHref={`/portal/admin/calendar?start=${shiftKey(windowStartKey, -WINDOW_DAYS)}`}
-          nextHref={`/portal/admin/calendar?start=${shiftKey(windowStartKey, WINDOW_DAYS)}`}
+          prevHref={`/portal/admin/calendar?start=${shiftDateKey(windowStartKey, -WINDOW_DAYS)}`}
+          nextHref={`/portal/admin/calendar?start=${shiftDateKey(windowStartKey, WINDOW_DAYS)}`}
           todayHref="/portal/admin/calendar"
           isTodayWindow={windowStartKey === todayKey}
         />
+
+        <div className="time-off-panel">
+          <div className="section-head" style={{ marginBottom: 16 }}>
+            <h3>Time off</h3>
+            <p>Block a day (or stretch of days) off your own schedule. Doesn&apos;t touch anything already booked.</p>
+          </div>
+
+          <form
+            action={`/api/time-off?next=${encodeURIComponent(`/portal/admin/calendar?start=${windowStartKey}`)}`}
+            method="post"
+            className="time-off-form"
+          >
+            <div className="field">
+              <label htmlFor="startDate">From</label>
+              <input id="startDate" name="startDate" type="date" required />
+            </div>
+            <div className="field">
+              <label htmlFor="endDate">Through</label>
+              <input id="endDate" name="endDate" type="date" required />
+            </div>
+            <div className="field">
+              <label htmlFor="reason">Reason (optional)</label>
+              <input id="reason" name="reason" type="text" placeholder="e.g. vacation" />
+            </div>
+            <button className="btn" type="submit" style={{ width: "auto" }}>
+              Block this time
+            </button>
+          </form>
+
+          {timeOffRows.length > 0 && (
+            <ul className="time-off-list">
+              {timeOffRows.map((t) => (
+                <li key={t.id}>
+                  <span>
+                    {new Date(t.starts_at).toLocaleDateString("en-US", {
+                      timeZone: TUTOR_TIMEZONE,
+                      month: "short",
+                      day: "numeric",
+                    })}
+                    {" – "}
+                    {new Date(new Date(t.ends_at).getTime() - 1).toLocaleDateString("en-US", {
+                      timeZone: TUTOR_TIMEZONE,
+                      month: "short",
+                      day: "numeric",
+                    })}
+                    {t.reason ? ` · ${t.reason}` : ""}
+                  </span>
+                  <form
+                    action={`/api/time-off/${t.id}/delete?next=${encodeURIComponent(
+                      `/portal/admin/calendar?start=${windowStartKey}`
+                    )}`}
+                    method="post"
+                  >
+                    <button className="cal-close-btn" type="submit">
+                      Remove
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </>
   );

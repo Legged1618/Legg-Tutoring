@@ -25,6 +25,8 @@ export type CalendarDay = {
   weekdayLabel: string;
   monthLabel: string;
   isToday: boolean;
+  isOff: boolean;
+  offReason?: string;
   entries: CalendarEntry[];
 };
 
@@ -94,13 +96,14 @@ export default function AdminCalendarGrid({
               key={day.dateKey}
               className={`cal-day${day.isToday ? " today" : ""}${
                 selectedDateKey === day.dateKey ? " selected" : ""
-              }`}
+              }${day.isOff ? " off" : ""}`}
               onClick={() => selectDay(day.dateKey)}
             >
               <span className="cal-day-number">
                 {showMonth ? `${day.monthLabel} ` : ""}
                 {day.dayNumber}
               </span>
+              {day.isOff && <span className="cal-off-badge">Off</span>}
               <span className="cal-day-pills">
                 {day.entries.slice(0, 3).map((entry) => (
                   <span

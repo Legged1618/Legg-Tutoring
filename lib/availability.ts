@@ -38,6 +38,15 @@ export const WEEKLY_AVAILABILITY: Window[] = [
 
 export type BusyInterval = { start: Date; end: Date };
 
+/** "YYYY-MM-DD" + N calendar days -> "YYYY-MM-DD" (tz-agnostic date-key arithmetic). */
+export function shiftDateKey(dateKey: string, days: number): string {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const shifted = new Date(Date.UTC(y, m - 1, d + days));
+  return `${shifted.getUTCFullYear()}-${String(shifted.getUTCMonth() + 1).padStart(2, "0")}-${String(
+    shifted.getUTCDate()
+  ).padStart(2, "0")}`;
+}
+
 function tzOffsetMinutes(date: Date, timeZone: string): number {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,

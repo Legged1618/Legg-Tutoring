@@ -603,6 +603,24 @@ footer {
   box-shadow: inset 0 0 0 2px var(--teal);
 }
 
+.cal-day.off {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--rule),
+    var(--rule) 6px,
+    var(--card) 6px,
+    var(--card) 12px
+  );
+}
+
+.cal-off-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .cal-day-number {
   font-size: 0.8rem;
   font-weight: 600;
@@ -702,4 +720,43 @@ footer {
 @media (max-width: 560px) {
   .cal-day { min-height: 44px; padding: 4px; }
   .cal-day-number { font-size: 0.7rem; }
+}
+
+.time-off-panel {
+  max-width: 720px;
+  margin: 8px auto 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--rule);
+}
+
+.time-off-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.time-off-form .field {
+  margin-bottom: 0;
+  min-width: 150px;
+}
+
+.time-off-form button {
+  margin-bottom: 18px;
+}
+
+.time-off-list {
+  list-style: none;
+  margin-top: 20px;
+}
+
+.time-off-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
 }

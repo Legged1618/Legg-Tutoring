@@ -17,7 +17,7 @@ export async function fetchBusyIntervals(
 ): Promise<BusyInterval[]> {
   const pendingCutoff = new Date(Date.now() - PENDING_PAYMENT_HOLD_MINUTES * 60000).toISOString();
 
-  const [{ data: consultations }, { data: sessions }] = await Promise.all([
+  const [{ data: consultations }, { data: sessions }, { data: timeOff }] = await Promise.all([
     admin
       .from("consultations")
       .select("scheduled_at")
@@ -30,6 +30,13 @@ export async function fetchBusyIntervals(
       .or(`status.eq.scheduled,and(status.eq.pending_payment,created_at.gte.${pendingCutoff})`)
       .gte("scheduled_at", rangeStart)
       .lte("scheduled_at", rangeEnd),
+    // Interval overlap, not point-in-range -- a time-off stretch can start
+    // before or end after the window and still block part of it.
+    admin
+      .from("time_off")
+      .select("starts_at, ends_at")
+      .lt("starts_at", rangeEnd)
+      .gt("ends_at", rangeStart),
   ]);
 
   const busy: BusyInterval[] = [];
@@ -42,6 +49,10 @@ export async function fetchBusyIntervals(
   for (const s of (sessions ?? []) as { scheduled_at: string; duration_minutes: number }[]) {
     const start = new Date(s.scheduled_at);
     busy.push({ start, end: new Date(start.getTime() + s.duration_minutes * 60000) });
+  }
+
+  for (const t of (timeOff ?? []) as { starts_at: string; ends_at: string }[]) {
+    busy.push({ start: new Date(t.starts_at), end: new Date(t.ends_at) });
   }
 
   return busy;
