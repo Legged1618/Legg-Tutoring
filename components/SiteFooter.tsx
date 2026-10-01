@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LogoMark from "@/components/LogoMark";
 
 export default function SiteFooter() {
   return (
@@ -6,6 +7,7 @@ export default function SiteFooter() {
       <div className="wrap site-footer-inner">
         <div className="site-footer-brand">
           <Link href="/" className="wordmark">
+            <LogoMark size={30} tone="dark" />
             Legg Tutoring
           </Link>
           <p>Virtual math tutoring from Roanoke, Virginia, for students anywhere in the U.S.</p>

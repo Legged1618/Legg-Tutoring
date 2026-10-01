@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import AccountMenu from "@/components/AccountMenu";
+import LogoMark from "@/components/LogoMark";
 
 /**
  * The one header for the whole site -- marketing homepage and portal
@@ -29,6 +30,7 @@ export default async function SiteHeader() {
       <header>
         <nav className="nav nav-split">
           <Link href="/" className="wordmark">
+            <LogoMark size={30} />
             Legg Tutoring
           </Link>
           <div className="nav-links">
@@ -64,6 +66,7 @@ export default async function SiteHeader() {
     <header>
       <nav className="nav nav-split">
         <Link href="/" className="wordmark">
+          <LogoMark size={30} />
           Legg Tutoring
         </Link>
         <div className="nav-links">

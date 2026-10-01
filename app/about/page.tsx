@@ -35,6 +35,45 @@ const BACKGROUND = [
   { label: "Based in", value: "Roanoke, Virginia" },
 ];
 
+const READING = [
+  {
+    author: "John von Neumann",
+    title: <>&ldquo;The Mathematician&rdquo;</>,
+    year: 1947,
+    href: "https://scholar.google.com/scholar?q=%22The+Mathematician%22+von+Neumann+1947",
+  },
+  {
+    author: "George Pólya",
+    title: <em>How to Solve It</em>,
+    year: 1945,
+    href: "https://press.princeton.edu/books/paperback/9780691164076/how-to-solve-it",
+  },
+  {
+    author: "John Dewey",
+    title: <em>How We Think</em>,
+    year: 1910,
+    href: "https://www.gutenberg.org/ebooks/search/?query=dewey+how+we+think",
+  },
+  {
+    author: "Carol S. Dweck",
+    title: <em>Mindset: The New Psychology of Success</em>,
+    year: 2006,
+    href: "https://search.worldcat.org/search?q=Mindset+The+New+Psychology+of+Success+Dweck",
+  },
+  {
+    author: "Jo Boaler",
+    title: <em>Mathematical Mindsets</em>,
+    year: 2016,
+    href: "https://search.worldcat.org/search?q=Mathematical+Mindsets+Boaler",
+  },
+  {
+    author: "National Research Council",
+    title: <em>Adding It Up: Helping Children Learn Mathematics</em>,
+    year: 2001,
+    href: "https://nap.nationalacademies.org/catalog/9822/adding-it-up-helping-children-learn-mathematics",
+  },
+];
+
 export default function AboutPage() {
   return (
     <>
@@ -101,15 +140,14 @@ export default function AboutPage() {
             <div className="reading-list">
               <h3>Further reading</h3>
               <ul>
-                <li>John von Neumann, &ldquo;The Mathematician&rdquo; (1947)</li>
-                <li>George P&oacute;lya, <em>How to Solve It</em> (1945)</li>
-                <li>John Dewey, <em>How We Think</em> (1910)</li>
-                <li>Carol S. Dweck, <em>Mindset: The New Psychology of Success</em> (2006)</li>
-                <li>Jo Boaler, <em>Mathematical Mindsets</em> (2016)</li>
-                <li>
-                  National Research Council, <em>Adding It Up: Helping Children Learn Mathematics</em>{" "}
-                  (2001)
-                </li>
+                {READING.map((r) => (
+                  <li key={r.href}>
+                    <a href={r.href} target="_blank" rel="noopener noreferrer">
+                      {r.author}, {r.title}
+                    </a>{" "}
+                    ({r.year})
+                  </li>
+                ))}
               </ul>
             </div>
           </Reveal>
@@ -160,9 +198,25 @@ export default function AboutPage() {
           <Reveal>
             <h2>Looking ahead</h2>
             <p>
-              I am preparing to begin graduate studies in mathematics internationally. My research
-              interests include harmonics, sound waves, light waves and functional analysis, and I
-              also want to pursue further studies in education leading to an EdD.
+              I&apos;m preparing to begin graduate studies in mathematics abroad. The questions that
+              pull me in come from harmonic analysis: the idea that a complicated signal can be
+              broken down into simple waves. A chord on a piano is a handful of frequencies sounding
+              at once. White light splits into a spectrum of colors. Fourier analysis gives a precise
+              way to take those signals apart and put them back together, and the same mathematics
+              sits behind digital audio, image compression and medical imaging.
+            </p>
+            <p>
+              Functional analysis is the framework that makes those ideas rigorous. Instead of
+              working with one function at a time, it treats whole families of functions as points
+              in a space with its own geometry, where you can measure distance and angle. In that
+              setting, a sound wave and a light wave become vectors, and breaking a signal into
+              frequencies becomes a change of coordinates. It&apos;s abstract, but it&apos;s some of
+              the most useful abstraction in mathematics, and it&apos;s a good answer to &ldquo;when
+              am I going to use this?&rdquo;
+            </p>
+            <p>
+              Further down the road, I want to pursue a Doctor of Education (EdD) so I can study how
+              people learn mathematics and bring that research straight back into how I teach.
             </p>
           </Reveal>
         </div>
