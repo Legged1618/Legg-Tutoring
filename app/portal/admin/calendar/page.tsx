@@ -92,7 +92,6 @@ export default async function AdminCalendarPage({
       outcome: c.outcome,
       clientEmail: c.email,
       clientPhone: c.phone,
-      roomHref: `/consultation/room/${c.id}`,
     });
   }
 

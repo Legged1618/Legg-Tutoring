@@ -63,7 +63,7 @@ This is one-way and read-only by design: it shows what's booked, but cancelling/
 
 ### 5. Lessonspace (live session room) — from $9/month
 
-Each paid session and consultation has its own Lessonspace room (two-way video and voice, plus a shared whiteboard with math tools that both sides can write on), embedded on the site at `/portal/session/<id>` (login required) or `/consultation/room/<id>` (linked from the confirmation email). Clients don't need a Lessonspace account. The room opens to the client 10 minutes before the start; the tutor can open it any time to set up the board, and joins as the room's leader.
+Each paid session has its own Lessonspace room (two-way video and voice, plus a shared whiteboard with math tools that both sides can write on), embedded on the site at `/portal/session/<id>` (login required; linked from the portal calendar and the confirmation email). Free consultations are phone calls and don't get a room. Clients don't need a Lessonspace account. The room opens to the client 10 minutes before the start; the tutor can open it any time to set up the board, and joins as the room's leader.
 
 1. Sign up at [thelessonspace.com](https://www.thelessonspace.com/pricing) (Basic is $9/month for 10 session hours; every plan includes the API).
 2. Copy your organisation's API key into `LESSONSPACE_API_KEY`.

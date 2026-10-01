@@ -48,7 +48,6 @@ export async function GET(request: Request) {
       end,
       summary: `Consultation: ${c.full_name}`,
       description: buildConsultationChecklist(c as any, scriptUrl),
-      location: `${origin}/consultation/room/${c.id}`,
     });
   }
 

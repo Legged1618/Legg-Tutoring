@@ -46,7 +46,6 @@ export async function sendConsultationConfirmationToClient(
 ) {
   const when = formatWhen(c.scheduledAt);
   const cancelUrl = `${origin}/consultation/cancel/${c.id}`;
-  const roomUrl = `${origin}/consultation/room/${c.id}`;
   await getResend().emails.send({
     from: fromAddress(),
     to: c.email,
@@ -57,11 +56,7 @@ Your free 15-minute consultation call is confirmed for:
 
 ${when}
 
-We'll cover what you're looking for help with and whether it's a good fit. At the scheduled time, join the call here (it opens 10 minutes early, right in your browser, with no download or account needed):
-
-${roomUrl}
-
-If you need to cancel, use this link:
+We'll cover what you're looking for help with and whether it's a good fit. If you need to cancel, use this link:
 
 ${cancelUrl}
 
