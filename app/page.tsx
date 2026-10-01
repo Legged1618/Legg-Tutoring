@@ -5,7 +5,7 @@ import HeroArt from "@/components/HeroArt";
 import ProfileAvatar from "@/components/ProfileAvatar";
 import Reveal from "@/components/Reveal";
 import { createClient } from "@/lib/supabase/server";
-import { PRICING, CANCELLATION_WINDOW_HOURS } from "@/lib/pricing";
+import { PRICING, CANCELLATION_WINDOW_HOURS, sessionPriceCents } from "@/lib/pricing";
 import { BOOKING_WINDOW_DAYS, SESSION_MIN_NOTICE_HOURS } from "@/lib/availability";
 
 const STEPS = [
@@ -40,7 +40,7 @@ const LEVELS = [
     title: "College",
     accent: "ink",
     body: "Work through the courses that weed people out, one concept at a time.",
-    topics: ["College algebra", "Calculus I–III", "Statistics", "Linear algebra", "Discrete math"],
+    topics: ["College algebra", "Calculus I–III", "Statistics", "Linear algebra"],
   },
 ];
 
@@ -62,7 +62,7 @@ const ARTICLES = [
   {
     tag: "Tools",
     title: "See the graph, not just the formula",
-    body: "Desmos is a free graphing calculator that makes functions click. We use it in sessions, and students can use it at home.",
+    body: "Desmos is a free graphing calculator that makes functions click. Students can use it at home to see what an equation really does.",
     href: "https://www.desmos.com/calculator",
     source: "desmos.com",
   },
@@ -121,8 +121,8 @@ export default async function HomePage() {
             <span className="eyebrow">Virtual math tutoring &middot; Nationwide</span>
             <h1 className="hero-title">Mathematics, Personalized</h1>
             <p className="lede">
-              With Legg Tutoring, receive help that suits your needs. I work on areas that
-              students are struggling in. Catch up and show out.
+              Welcome to Legg Tutoring! Work on your weaknesses, polish your strengths, and
+              perform academically!
             </p>
             <div className="hero-cta-row">
               <Link href="/consultation" className="btn">
@@ -184,8 +184,8 @@ export default async function HomePage() {
         <div className="wrap">
           <Reveal className="section-head">
             <span className="section-number">02</span>
-            <h2>Subjects &amp; levels</h2>
-            <p>From middle school foundations through college calculus.</p>
+            <h2>Subjects and Levels</h2>
+            <p>From middle school foundations through undergraduate specialties.</p>
           </Reveal>
           <div className="subject-grid">
             {LEVELS.map((level, i) => (
@@ -276,15 +276,15 @@ export default async function HomePage() {
               <ul className="price-options">
                 <li>
                   <span>30 minutes</span>
-                  <strong>{dollars(hourly / 2)}</strong>
+                  <strong>{dollars(sessionPriceCents(30))}</strong>
                 </li>
                 <li>
                   <span>1 hour</span>
-                  <strong>{dollars(hourly)}</strong>
+                  <strong>{dollars(sessionPriceCents(60))}</strong>
                 </li>
                 <li>
                   <span>2 hours</span>
-                  <strong>{dollars(hourly * 2)}</strong>
+                  <strong>{dollars(sessionPriceCents(120))}</strong>
                 </li>
               </ul>
               <Link href="/consultation" className="btn">

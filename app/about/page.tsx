@@ -26,9 +26,12 @@ const PRINCIPLES = [
 ];
 
 const BACKGROUND = [
-  { label: "Education", value: "Placeholder: degree, school, year" },
-  { label: "Experience", value: "Placeholder: years tutoring, number of students" },
-  { label: "Specialties", value: "Placeholder: Algebra, Calculus, test prep" },
+  { label: "Education", value: "Bachelor of Science in Applied Mathematics, University of Utah, 2025" },
+  {
+    label: "Experience",
+    value:
+      "I've tutored dozens of students over a span of four years. I've helped students achieve at all levels, from middle school to upper undergraduate.",
+  },
   { label: "Based in", value: "Roanoke, Virginia" },
 ];
 
@@ -115,8 +118,12 @@ export default function AboutPage() {
       <section className="band band-tint">
         <div className="wrap prose-block">
           <Reveal>
-            <h2>Outside of math</h2>
-            <p>Placeholder: hobbies, interests, or anything that helps families get to know you.</p>
+            <h2>Looking ahead</h2>
+            <p>
+              I am preparing to begin graduate studies in mathematics internationally. My research
+              interests include harmonics, sound waves, light waves and functional analysis, and I
+              also want to pursue further studies in education leading to an EdD.
+            </p>
           </Reveal>
         </div>
       </section>
