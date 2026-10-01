@@ -10,7 +10,6 @@ import { setClientApproval } from "@/lib/clients";
 import {
   sendConsultationConfirmationToClient,
 } from "@/lib/email";
-import { ensureRoom } from "@/lib/twiddla";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -78,13 +77,6 @@ export async function POST(request: Request) {
     phone: consultation.phone,
     approved: true,
   });
-
-  await ensureRoom(
-    admin,
-    "consultations",
-    consultation,
-    `Legg Tutoring consultation: ${consultation.full_name}`
-  );
 
   const details = {
     id: consultation.id,

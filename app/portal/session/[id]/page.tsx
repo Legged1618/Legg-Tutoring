@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { ensureRoom } from "@/lib/twiddla";
+import { joinWindowState, launchSpace } from "@/lib/lessonspace";
 import SessionRoom from "@/components/SessionRoom";
 
 export default async function SessionRoomPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,24 +35,34 @@ export default async function SessionRoomPage({ params }: { params: Promise<{ id
   }
 
   const clientLabel = client?.full_name || client?.email || "Client";
+  const scheduledAt = new Date(session.scheduled_at);
+  const windowState = joinWindowState(scheduledAt, session.duration_minutes);
   const closedMessage =
     session.status === "pending_payment"
       ? "This session isn't paid yet, so its room isn't open."
       : session.status === "scheduled" || session.status === "completed"
         ? null
         : "This session was cancelled, so its room is closed.";
-  const room = closedMessage
-    ? null
-    : await ensureRoom(admin, "sessions", session, `Legg Tutoring: ${clientLabel}`);
+
+  const clientUrl =
+    !closedMessage && (isTutor || windowState === "open")
+      ? await launchSpace({
+          spaceId: `session-${session.id}`,
+          spaceName: `Legg Tutoring: ${clientLabel}`,
+          user: isTutor
+            ? { id: "tutor", name: "Tutor", email: user.email, leader: true }
+            : { id: user.id, name: clientLabel, email: client?.email, leader: false },
+        })
+      : null;
 
   return (
     <SessionRoom
       heading={isTutor ? `Session with ${clientLabel}` : "Your tutoring session"}
-      scheduledAt={new Date(session.scheduled_at)}
+      scheduledAt={scheduledAt}
       durationMinutes={session.duration_minutes}
       closedMessage={closedMessage}
-      room={room}
-      guestName={isTutor ? "Tutor" : clientLabel}
+      windowState={windowState}
+      clientUrl={clientUrl}
       isTutor={isTutor}
       backHref={isTutor ? "/portal/admin/calendar" : "/portal"}
       backLabel={isTutor ? "Back to calendar" : "Back to your sessions"}

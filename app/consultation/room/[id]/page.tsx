@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { CONSULTATION_DURATION_MINUTES } from "@/lib/availability";
-import { ensureRoom } from "@/lib/twiddla";
+import { joinWindowState, launchSpace } from "@/lib/lessonspace";
 import SiteHeader from "@/components/SiteHeader";
 import SessionRoom from "@/components/SessionRoom";
 
@@ -28,29 +28,39 @@ export default async function ConsultationRoomPage({ params }: { params: Promise
     notFound();
   }
 
+  const scheduledAt = new Date(consultation.scheduled_at);
+  const windowState = joinWindowState(scheduledAt, CONSULTATION_DURATION_MINUTES);
   const closedMessage =
     consultation.status === "cancelled"
       ? "This consultation was cancelled, so its room is closed."
       : null;
-  const room = closedMessage
-    ? null
-    : await ensureRoom(
-        admin,
-        "consultations",
-        consultation,
-        `Legg Tutoring consultation: ${consultation.full_name}`
-      );
+
+  const clientUrl =
+    !closedMessage && (isTutor || windowState === "open")
+      ? await launchSpace({
+          spaceId: `consultation-${consultation.id}`,
+          spaceName: `Legg Tutoring consultation: ${consultation.full_name}`,
+          user: isTutor
+            ? { id: "tutor", name: "Tutor", email: user!.email, leader: true }
+            : {
+                id: `consultation-${consultation.id}`,
+                name: consultation.full_name,
+                email: consultation.email,
+                leader: false,
+              },
+        })
+      : null;
 
   return (
     <>
       <SiteHeader />
       <SessionRoom
         heading={isTutor ? `Consultation with ${consultation.full_name}` : "Your free consultation"}
-        scheduledAt={new Date(consultation.scheduled_at)}
+        scheduledAt={scheduledAt}
         durationMinutes={CONSULTATION_DURATION_MINUTES}
         closedMessage={closedMessage}
-        room={room}
-        guestName={isTutor ? "Tutor" : consultation.full_name}
+        windowState={windowState}
+        clientUrl={clientUrl}
         isTutor={isTutor}
         backHref={isTutor ? "/portal/admin/calendar" : "/"}
         backLabel={isTutor ? "Back to calendar" : "Back to home"}

@@ -61,15 +61,14 @@ Every scheduled consultation and paid session is available as a private ICS feed
 
 This is one-way and read-only by design: it shows what's booked, but cancelling/editing still happens through the portal or admin, not by touching the calendar event itself. Each event's description includes the client's contact info and (for consultations) the `CALL_SCRIPT_URL` link.
 
-### 5. Twiddla (live session room) — Pro, $14/month
+### 5. Lessonspace (live session room) — from $9/month
 
-Each paid session and consultation gets its own private Twiddla room (whiteboard, chat and voice), created automatically when the session is paid or the consultation is booked, and embedded on the site at `/portal/session/<id>` (login required) or `/consultation/room/<id>` (link from the confirmation email). Clients don't need a Twiddla account. The room opens to the client 10 minutes before the start; the tutor can open it any time to set up the board.
+Each paid session and consultation has its own Lessonspace room (two-way video and voice, plus a shared whiteboard with math tools that both sides can write on), embedded on the site at `/portal/session/<id>` (login required) or `/consultation/room/<id>` (linked from the confirmation email). Clients don't need a Lessonspace account. The room opens to the client 10 minutes before the start; the tutor can open it any time to set up the board, and joins as the room's leader.
 
-1. Sign up for Twiddla **Pro** (the free plan ends meetings after 20 minutes).
-2. Put the login in `TWIDDLA_USERNAME` and `TWIDDLA_PASSWORD`.
-3. Run the `twiddla_meeting_*` `alter table` lines at the bottom of `supabase/schema.sql` once in the Supabase SQL editor.
+1. Sign up at [thelessonspace.com](https://www.thelessonspace.com/pricing) (Basic is $9/month for 10 session hours; every plan includes the API).
+2. Copy your organisation's API key into `LESSONSPACE_API_KEY`.
 
-If room creation fails (missing login, Twiddla down), the booking still goes through and the room is retried the next time the join page is opened.
+Rooms are created on demand from the booking id, so there's nothing to store or migrate. If the key is missing or Lessonspace is down, the join page says the room isn't ready and bookings still work.
 
 ### 6. Vercel (hosting) — free for this size of site
 

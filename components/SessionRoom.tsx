@@ -1,24 +1,19 @@
 import Link from "next/link";
-import {
-  JOIN_OPENS_MINUTES_BEFORE,
-  joinWindowState,
-  roomEmbedUrl,
-  type TwiddlaRoom,
-} from "@/lib/twiddla";
+import { JOIN_OPENS_MINUTES_BEFORE, type JoinWindowState } from "@/lib/lessonspace";
 import { TUTOR_TIMEZONE } from "@/lib/availability";
 
 /**
- * The live session page body: the embedded Twiddla room (whiteboard, chat
- * and voice) once the join window is open, or a notice saying when it
- * opens. The tutor can open the room any time to set up the board.
+ * The live session page body: the embedded Lessonspace room (video, voice
+ * and shared whiteboard) once the join window is open, or a notice saying
+ * when it opens. The tutor can open the room any time to set up the board.
  */
 export default function SessionRoom({
   heading,
   scheduledAt,
   durationMinutes,
   closedMessage,
-  room,
-  guestName,
+  windowState,
+  clientUrl,
   isTutor,
   backHref,
   backLabel,
@@ -28,8 +23,9 @@ export default function SessionRoom({
   durationMinutes: number;
   /** Set when the booking can't be joined at all (cancelled, unpaid). */
   closedMessage: string | null;
-  room: TwiddlaRoom | null;
-  guestName: string;
+  windowState: JoinWindowState;
+  /** This viewer's join link, or null if the room couldn't be launched. */
+  clientUrl: string | null;
   isTutor: boolean;
   backHref: string;
   backLabel: string;
@@ -43,8 +39,6 @@ export default function SessionRoom({
     minute: "2-digit",
     timeZoneName: "short",
   });
-  const windowState = joinWindowState(scheduledAt, durationMinutes);
-  const showRoom = !closedMessage && room && (isTutor || windowState === "open");
 
   return (
     <div className="portal-shell wrap session-room">
@@ -64,15 +58,13 @@ export default function SessionRoom({
         </p>
       ) : !isTutor && windowState === "ended" ? (
         <p className="notice">This session has ended.</p>
-      ) : !room ? (
+      ) : !clientUrl ? (
         <p className="notice">
           {isTutor
-            ? "The Twiddla room couldn't be created. Check TWIDDLA_USERNAME and TWIDDLA_PASSWORD in Vercel, then reload."
+            ? "The Lessonspace room couldn't be opened. Check LESSONSPACE_API_KEY in Vercel, then reload."
             : "Your room isn't ready yet. Please reload in a minute."}
         </p>
-      ) : null}
-
-      {showRoom && (
+      ) : (
         <>
           {isTutor && windowState !== "open" && (
             <p className="notice" style={{ marginTop: 0, marginBottom: 16 }}>
@@ -83,13 +75,14 @@ export default function SessionRoom({
           )}
           <div className="session-room-frame">
             <iframe
-              src={roomEmbedUrl(room!, guestName)}
-              title="Session whiteboard"
-              allow="microphone; camera; display-capture; autoplay; clipboard-read; clipboard-write; fullscreen"
+              src={clientUrl}
+              title="Live session room"
+              allow="camera; microphone; display-capture; autoplay; fullscreen; clipboard-read; clipboard-write"
+              allowFullScreen
             />
           </div>
           <p className="notice">
-            Allow microphone access when your browser asks. Headphones help prevent echo.
+            Allow camera and microphone access when your browser asks. Headphones help prevent echo.
           </p>
         </>
       )}

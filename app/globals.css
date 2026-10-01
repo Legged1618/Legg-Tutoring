@@ -837,7 +837,7 @@ footer {
   color: var(--ink-soft);
 }
 
-/* Live session room (embedded Twiddla) */
+/* Live session room (embedded Lessonspace) */
 .session-room .section-head {
   margin-bottom: 20px;
 }
