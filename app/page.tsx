@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import HeroArt from "@/components/HeroArt";
+import ProblemShuffle from "@/components/ProblemShuffle";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import ProfileAvatar from "@/components/ProfileAvatar";
 import ArticleArt, { type ArticleArtKind } from "@/components/ArticleArt";
@@ -56,7 +56,7 @@ const ARTICLES = [
     body: "Research from Stanford's youcubed team on how mistakes and effort grow math ability, and what parents can say to help.",
     href: "https://www.youcubed.org/",
     source: "youcubed.org",
-    art: "mindset" as ArticleArtKind,
+    art: "youcubed" as ArticleArtKind,
   },
   {
     tag: "Study skills",
@@ -64,7 +64,7 @@ const ARTICLES = [
     body: "Spaced practice and quizzing yourself beat rereading notes. The Learning Scientists explain six strategies in plain language.",
     href: "https://www.learningscientists.org/",
     source: "learningscientists.org",
-    art: "study" as ArticleArtKind,
+    art: "learningscientists" as ArticleArtKind,
   },
   {
     tag: "Tools",
@@ -72,7 +72,7 @@ const ARTICLES = [
     body: "Desmos is a free graphing calculator that makes functions click. Students can use it at home to see what an equation really does.",
     href: "https://www.desmos.com/calculator",
     source: "desmos.com",
-    art: "graph" as ArticleArtKind,
+    art: "desmos" as ArticleArtKind,
   },
   {
     tag: "Practice",
@@ -80,7 +80,7 @@ const ARTICLES = [
     body: "Khan Academy has a lesson and practice set for nearly every topic from pre-algebra through calculus.",
     href: "https://www.khanacademy.org/math",
     source: "khanacademy.org",
-    art: "practice" as ArticleArtKind,
+    art: "khan" as ArticleArtKind,
   },
   {
     tag: "Geometry",
@@ -88,7 +88,7 @@ const ARTICLES = [
     body: "GeoGebra lets students drag points and watch angles, areas and proofs change in real time.",
     href: "https://www.geogebra.org/",
     source: "geogebra.org",
-    art: "geometry" as ArticleArtKind,
+    art: "geogebra" as ArticleArtKind,
   },
   {
     tag: "Test prep",
@@ -96,9 +96,19 @@ const ARTICLES = [
     body: "Why pulling information out of memory beats putting it back in, with quick ideas to try the week of an exam.",
     href: "https://www.retrievalpractice.org/",
     source: "retrievalpractice.org",
-    art: "recall" as ArticleArtKind,
+    art: "retrieval" as ArticleArtKind,
   },
 ];
+
+const SESSION_PLAN = [
+  { time: "0:00", title: "Check in", body: "What's due, what's coming up, what's confusing." },
+  { time: "0:05", title: "Warm up", body: "A quick problem or two from last time." },
+  { time: "0:15", title: "Work through it together", body: "New material, step by step on the whiteboard." },
+  { time: "0:40", title: "Your turn", body: "You solve, I coach and catch the gaps." },
+  { time: "0:55", title: "Wrap up", body: "What to practice before next time." },
+];
+
+const SHOW_REVIEWS = false;
 
 function dollars(cents: number) {
   return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
@@ -151,7 +161,7 @@ export default async function HomePage() {
                         </Link>
                       </div>
                     </div>
-                    <HeroArt />
+                    <ProblemShuffle />
                   </div>
                 ),
               },
@@ -357,25 +367,22 @@ export default async function HomePage() {
             </ul>
           </Reveal>
           <Reveal className="split-media" delay={120}>
-            <div className="media-frame">
-              <div className="media-frame-bar">
-                <span />
-                <span />
-                <span />
+            <div className="session-plan">
+              <div className="session-plan-head">
+                <span>A typical hour</span>
+                <strong>60 min</strong>
               </div>
-              <div className="media-frame-body">
-                <div className="mock-video">
-                  <ProfileAvatar size={72} label="Tutor video" />
-                  <ProfileAvatar size={72} label="Student video" />
-                </div>
-                <div className="mock-board">
-                  <span className="mock-line w80" />
-                  <span className="mock-line w60" />
-                  <span className="mock-line w70 teal" />
-                  <span className="mock-line w40" />
-                </div>
-              </div>
-              <span className="media-frame-caption">Image placeholder: session room screenshot</span>
+              <ol>
+                {SESSION_PLAN.map((s) => (
+                  <li key={s.time}>
+                    <span className="session-plan-time">{s.time}</span>
+                    <div>
+                      <strong>{s.title}</strong>
+                      <p>{s.body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             </div>
           </Reveal>
         </div>
@@ -473,6 +480,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Reviews board: hidden until there are real reviews. Flip SHOW_REVIEWS to bring it back. */}
+      {SHOW_REVIEWS && (
       <section className="band" id="reviews">
         <div className="wrap">
           <Reveal className="section-head">
@@ -498,11 +507,12 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       <section className="band band-tint" id="media">
         <div className="wrap">
           <Reveal className="section-head">
-            <span className="section-number">07</span>
+            <span className="section-number">06</span>
             <h2>Math &amp; Education, Worth a Look</h2>
             <p>Free tools and reading for students and parents.</p>
           </Reveal>
@@ -512,9 +522,9 @@ export default async function HomePage() {
                 <a href={a.href} target="_blank" rel="noopener noreferrer">
                   <div className="article-image">
                     <ArticleArt kind={a.art} />
-                    <span>{a.tag}</span>
                   </div>
                   <div className="article-body">
+                    <span className="article-tag">{a.tag}</span>
                     <h3>{a.title}</h3>
                     <p>{a.body}</p>
                     <span className="article-source">{a.source} &#8599;</span>

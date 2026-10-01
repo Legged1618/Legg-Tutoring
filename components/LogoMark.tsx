@@ -1,17 +1,23 @@
 /**
- * The Legg Tutoring mark: a right triangle whose two legs form an L.
- * `tone="dark"` is for dark backgrounds (footer).
+ * The Legg Tutoring monogram: an L with a brass dot on a rounded badge.
+ * Same design as the favicon (app/icon.svg). Use tone="dark" on navy
+ * backgrounds such as the footer.
  */
 export default function LogoMark({ size = 32, tone = "light" }: { size?: number; tone?: "light" | "dark" }) {
-  const leg = tone === "dark" ? "#F7F3EA" : "#1D2733";
-  const hyp = tone === "dark" ? "#D4A45E" : "#A9762E";
-  const fill = tone === "dark" ? "rgba(183,203,204,0.18)" : "rgba(62,108,112,0.16)";
+  const badge = tone === "dark" ? "#F7F3EA" : "#1D2733";
+  const letter = tone === "dark" ? "#1D2733" : "#DACBAD";
   return (
     <svg className="logo-mark" width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
-      <path d="M16 48 L50 48 L16 12 Z" fill={fill} />
-      <path d="M16 12 V48 H50" fill="none" stroke={leg} strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M16 12 L50 48" stroke={hyp} strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M16 40 H24 V48" fill="none" stroke={hyp} strokeWidth="2" />
+      <rect width="64" height="64" rx="14" fill={badge} />
+      <path
+        d="M22 16v28h20"
+        fill="none"
+        stroke={letter}
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="44" cy="20" r="4.5" fill="#A9762E" />
     </svg>
   );
 }
