@@ -132,3 +132,20 @@ create policy "clients read own sessions"
 --
 -- No policies at all for time_off either -- only the tutor-gated API
 -- routes (service role) ever read or write it.
+
+-- Portal messaging + tutor notes (also in migrations/2026-10-01-messages-and-notes.sql).
+alter table public.clients add column if not exists tutor_notes text;
+
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references public.clients (id) on delete cascade,
+  session_id uuid references public.sessions (id) on delete set null,
+  sender text not null check (sender in ('client', 'tutor')),
+  body text not null check (length(body) between 1 and 5000),
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists messages_client_id_idx on public.messages (client_id, created_at);
+
+alter table public.messages enable row level security;

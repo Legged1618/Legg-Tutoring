@@ -2,10 +2,19 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
+import MessageThread from "@/components/MessageThread";
+import { fetchThread, markThreadRead } from "@/lib/messages";
 import { formatDate, formatWhen, sessionPaymentLabel } from "@/lib/format";
 
-export default async function AdminClientPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminClientPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string }>;
+}) {
   const { id } = await params;
+  const { saved } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,7 +39,7 @@ export default async function AdminClientPage({ params }: { params: Promise<{ id
     notFound();
   }
 
-  const [{ data: sessions }, { data: consultations }] = await Promise.all([
+  const [{ data: sessions }, { data: consultations }, messages] = await Promise.all([
     admin
       .from("sessions")
       .select("*")
@@ -41,7 +50,9 @@ export default async function AdminClientPage({ params }: { params: Promise<{ id
       .select("*")
       .eq("email", client.email)
       .order("scheduled_at", { ascending: false }),
+    fetchThread(admin, client.id),
   ]);
+  await markThreadRead(admin, client.id, "tutor");
 
   const now = Date.now();
   const allSessions = (sessions ?? []) as Record<string, any>[];
@@ -85,6 +96,36 @@ export default async function AdminClientPage({ params }: { params: Promise<{ id
             {client.approved ? "Revoke" : "Approve"}
           </button>
         </form>
+      </div>
+
+      <div className="client-columns">
+        <section id="notes" className="portal-card client-notes">
+          <h3>Your notes</h3>
+          <p className="meta">Private. Only you see these.</p>
+          <form action={`/api/clients/${client.id}/notes`} method="post">
+            <textarea
+              name="notes"
+              rows={8}
+              defaultValue={client.tutor_notes ?? ""}
+              placeholder="Topics covered, where they're struggling, what to try next..."
+            />
+            <button className="btn" type="submit" style={{ width: "auto" }}>
+              Save notes
+            </button>
+            {saved === "notes" && <span className="saved-flag">Saved</span>}
+          </form>
+        </section>
+
+        <section id="messages" className="portal-card">
+          <h3>Messages</h3>
+          <MessageThread
+            messages={messages}
+            viewer="tutor"
+            action={`/api/clients/${client.id}/messages`}
+            otherName={client.full_name || "Client"}
+            emptyText="No messages yet."
+          />
+        </section>
       </div>
 
       <div className="section-head" style={{ marginTop: 40, marginBottom: 16 }}>

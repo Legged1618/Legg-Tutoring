@@ -89,3 +89,21 @@ Legg Tutoring`,
   });
 }
 
+
+export async function sendNewMessageToClient(
+  c: { clientName: string | null; clientEmail: string },
+  origin: string
+) {
+  await getResend().emails.send({
+    from: fromAddress(),
+    to: c.clientEmail,
+    subject: "You have a new message from Legg Tutoring",
+    text: `Hello${c.clientName ? ` ${c.clientName}` : ""},
+
+You have a new message from your tutor. Read and reply in your portal:
+
+${origin}/portal/messages
+
+Legg Tutoring`,
+  });
+}

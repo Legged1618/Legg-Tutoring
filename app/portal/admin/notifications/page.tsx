@@ -47,7 +47,7 @@ export default async function AdminNotificationsPage() {
   const admin = createAdminClient();
   const since = new Date(Date.now() - LOOKBACK_DAYS * 86400000).toISOString();
 
-  const [{ data: consultations }, { data: sessions }] = await Promise.all([
+  const [{ data: consultations }, { data: sessions }, { data: messages }] = await Promise.all([
     admin
       .from("consultations")
       .select("id, full_name, email, scheduled_at, created_at")
@@ -57,6 +57,11 @@ export default async function AdminNotificationsPage() {
       .select("id, scheduled_at, duration_minutes, status, created_at, cancelled_at, amount_paid_cents, refund_cents, client_id, clients(full_name, email)")
       .gte("created_at", since)
       .neq("status", "pending_payment"),
+    admin
+      .from("messages")
+      .select("id, client_id, body, created_at, clients(full_name, email)")
+      .eq("sender", "client")
+      .gte("created_at", since),
   ]);
 
   const activity: Activity[] = [];
@@ -91,6 +96,17 @@ export default async function AdminNotificationsPage() {
         href: `/portal/admin/clients/${s.client_id}`,
       });
     }
+  }
+
+  for (const m of (messages ?? []) as Record<string, any>[]) {
+    const client = m.clients as { full_name: string | null; email: string } | null;
+    activity.push({
+      id: `message-${m.id}`,
+      at: m.created_at,
+      summary: `New message: ${client?.full_name || client?.email || "Client"}`,
+      detail: m.body.length > 120 ? `${m.body.slice(0, 120)}...` : m.body,
+      href: `/portal/admin/clients/${m.client_id}#messages`,
+    });
   }
 
   activity.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());

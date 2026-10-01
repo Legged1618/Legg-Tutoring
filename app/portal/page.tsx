@@ -40,6 +40,13 @@ export default async function PortalDashboard({
   const { windowStartKey, mondayKey, boundaries, dayMeta, rangeLabel, prevKey, nextKey } =
     computeCalendarWindow(WINDOW_DAYS, start, now);
 
+  const { count: unreadMessages } = await admin
+    .from("messages")
+    .select("id", { count: "exact", head: true })
+    .eq("client_id", client.id)
+    .eq("sender", "tutor")
+    .is("read_at", null);
+
   const { data: sessions } = await admin
     .from("sessions")
     .select("*")
@@ -94,6 +101,12 @@ export default async function PortalDashboard({
       <div className="section-head">
         <h2>Your sessions</h2>
         <p>{user.email}</p>
+      </div>
+
+      <div className="portal-head-actions">
+        <Link href="/portal/messages" className="btn btn-secondary" style={{ width: "auto" }}>
+          {unreadMessages ? `Messages (${unreadMessages} new)` : "Ask a question"}
+        </Link>
       </div>
 
       {booked === "1" && (

@@ -128,6 +128,15 @@ export default function ClientCalendarGrid({
                   Join
                 </Link>
               )}
+              {s.status === "scheduled" && (
+                <Link
+                  href={`/portal/messages?session=${s.id}`}
+                  className="btn btn-secondary"
+                  style={{ width: "auto" }}
+                >
+                  Message
+                </Link>
+              )}
               {(s.status === "scheduled" || s.status === "pending_payment") && (
                 <form
                   action={`/api/sessions/${s.id}/cancel?next=${encodeURIComponent(returnTo)}`}
