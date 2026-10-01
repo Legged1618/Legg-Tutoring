@@ -971,12 +971,6 @@ header {
 
 .article-card a:hover .article-art { transform: scale(1.04); }
 
-.article-photo {
-  display: block;
-  object-fit: cover;
-  background: var(--paper-deep, #EFE8D9);
-}
-
 .article-tag {
   display: inline-block;
   font-size: 0.7rem;
