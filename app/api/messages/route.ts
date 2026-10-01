@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { notifyTutor } from "@/lib/push";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
 import { MAX_MESSAGE_LENGTH } from "@/lib/messages";
@@ -46,6 +47,15 @@ export async function POST(request: Request) {
     sender: "client",
     body,
   });
+
+  after(() =>
+    notifyTutor({
+      title: `Message from ${client.full_name || client.email}`,
+      body: body.length > 140 ? `${body.slice(0, 140)}...` : body,
+      url: `/portal/admin/clients/${client.id}#messages`,
+      tag: `message-${client.id}`,
+    })
+  );
 
   return NextResponse.redirect(new URL(next, request.url), { status: 303 });
 }

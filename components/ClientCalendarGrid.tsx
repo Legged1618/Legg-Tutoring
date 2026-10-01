@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import SessionBooking from "@/components/SessionBooking";
+import StatusPill from "@/components/StatusPill";
 
 export type ClientSessionEntry = {
   id: string;
@@ -22,6 +23,15 @@ export type ClientCalendarDay = {
   sessions: ClientSessionEntry[];
 };
 
+/** "3:00 PM" -> "3p", "3:30 PM" -> "3:30p", for the cramped day cells. */
+function compactTime(label: string): string {
+  return label.replace(":00", "").replace(" AM", "a").replace(" PM", "p");
+}
+
+function isActive(status: string) {
+  return status === "scheduled" || status === "pending_payment";
+}
+
 export default function ClientCalendarGrid({
   days,
   rangeLabel,
@@ -30,6 +40,7 @@ export default function ClientCalendarGrid({
   todayHref,
   isTodayWindow,
   approved,
+  todayKey,
 }: {
   days: ClientCalendarDay[];
   rangeLabel: string;
@@ -38,6 +49,7 @@ export default function ClientCalendarGrid({
   todayHref: string;
   isTodayWindow: boolean;
   approved: boolean;
+  todayKey: string;
 }) {
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
@@ -55,8 +67,8 @@ export default function ClientCalendarGrid({
   return (
     <div>
       <div className="cal-nav">
-        <Link href={prevHref} className="btn btn-secondary cal-nav-btn">
-          &larr; Previous
+        <Link href={prevHref} className="btn btn-secondary cal-nav-btn" aria-label="Previous four weeks">
+          &larr; <span className="cal-nav-word">Previous</span>
         </Link>
         <div className="cal-nav-label">
           <strong>{rangeLabel}</strong>
@@ -66,8 +78,8 @@ export default function ClientCalendarGrid({
             </Link>
           )}
         </div>
-        <Link href={nextHref} className="btn btn-secondary cal-nav-btn">
-          Next &rarr;
+        <Link href={nextHref} className="btn btn-secondary cal-nav-btn" aria-label="Next four weeks">
+          <span className="cal-nav-word">Next</span> &rarr;
         </Link>
       </div>
 
@@ -83,18 +95,40 @@ export default function ClientCalendarGrid({
         {days.map((day, i) => {
           const showMonth = i === 0 || day.dayNumber === 1;
           const hasSession = day.sessions.length > 0;
+          const isPast = day.dateKey < todayKey;
           return (
             <button
               type="button"
               key={day.dateKey}
               className={`cal-day${day.isToday ? " today" : ""}${
                 selectedDateKey === day.dateKey ? " selected" : ""
-              }${!hasSession && !day.isBookable ? " off" : ""}`}
+              }${!hasSession && !day.isBookable && !isPast ? " off" : ""}${isPast ? " past" : ""}${
+                day.isBookable && !hasSession ? " open" : ""
+              }`}
               onClick={() => selectDay(day)}
+              aria-label={`${day.weekdayLabel} ${day.monthLabel} ${day.dayNumber}${
+                hasSession ? `, ${day.sessions.length} session${day.sessions.length === 1 ? "" : "s"}` : ""
+              }${day.isBookable ? ", open for booking" : ""}`}
             >
-              <span className="cal-day-number">
-                {showMonth ? `${day.monthLabel} ` : ""}
-                {day.dayNumber}
+              <span className="cal-day-top">
+                <span className="cal-day-number">
+                  {showMonth ? `${day.monthLabel} ` : ""}
+                  {day.dayNumber}
+                </span>
+              </span>
+              <span className="cal-day-labels">
+                {day.sessions.slice(0, 2).map((s) => (
+                  <span
+                    key={s.id}
+                    className={`cal-label ${isActive(s.status) && !isPast ? "session-upcoming" : "session-resolved"}`}
+                  >
+                    {compactTime(s.timeLabel)}
+                  </span>
+                ))}
+                {day.sessions.length > 2 && (
+                  <span className="cal-label-more">+{day.sessions.length - 2} more</span>
+                )}
+                {!hasSession && day.isBookable && <span className="cal-label open">Open</span>}
               </span>
               <span className="cal-day-pills">
                 {hasSession && <span className="cal-pill your-session" />}
@@ -103,6 +137,17 @@ export default function ClientCalendarGrid({
             </button>
           );
         })}
+      </div>
+
+      <div className="cal-legend">
+        <span>
+          <span className="cal-pill your-session" /> Your session
+        </span>
+        {approved && (
+          <span>
+            <span className="cal-pill bookable" /> Open for booking
+          </span>
+        )}
       </div>
 
       {selectedDay && (
@@ -117,41 +162,41 @@ export default function ClientCalendarGrid({
           </div>
 
           {selectedDay.sessions.map((s) => (
-            <div className="cal-entry-row" key={s.id} style={{ cursor: "default" }}>
+            <div className="cal-entry-row static" key={s.id}>
               <span className="cal-pill your-session" />
-              <span style={{ flex: 1 }}>
+              <span className="cal-entry-main">
                 <strong>{s.timeLabel}</strong> &middot; {s.title}
-                <div className="meta">{s.status.replaceAll("_", " ")}</div>
+                <span className="cal-entry-sub">
+                  <StatusPill value={s.status} />
+                </span>
               </span>
-              {s.status === "scheduled" && (
-                <Link href={`/portal/session/${s.id}`} className="btn" style={{ width: "auto" }}>
-                  Join
-                </Link>
-              )}
-              {s.status === "scheduled" && (
-                <Link
-                  href={`/portal/messages?session=${s.id}`}
-                  className="btn btn-secondary"
-                  style={{ width: "auto" }}
-                >
-                  Message
-                </Link>
-              )}
-              {(s.status === "scheduled" || s.status === "pending_payment") && (
-                <form
-                  action={`/api/sessions/${s.id}/cancel?next=${encodeURIComponent(returnTo)}`}
-                  method="post"
-                >
-                  <button className="btn btn-secondary" type="submit" style={{ width: "auto" }}>
-                    Cancel
-                  </button>
-                </form>
-              )}
+              <span className="cal-entry-actions">
+                {s.status === "scheduled" && (
+                  <Link href={`/portal/session/${s.id}`} className="btn btn-auto btn-sm">
+                    Join
+                  </Link>
+                )}
+                {s.status === "scheduled" && (
+                  <Link href={`/portal/messages?session=${s.id}`} className="btn btn-secondary btn-auto btn-sm">
+                    Message
+                  </Link>
+                )}
+                {isActive(s.status) && (
+                  <form
+                    action={`/api/sessions/${s.id}/cancel?next=${encodeURIComponent(returnTo)}`}
+                    method="post"
+                  >
+                    <button className="btn btn-secondary btn-auto btn-sm btn-danger" type="submit">
+                      Cancel
+                    </button>
+                  </form>
+                )}
+              </span>
             </div>
           ))}
 
           {selectedDay.sessions.length === 0 && !selectedDay.isBookable && (
-            <p className="notice">Nothing available this day.</p>
+            <p className="empty-state">Nothing available this day.</p>
           )}
 
           {selectedDay.isBookable && !approved && (
@@ -162,15 +207,15 @@ export default function ClientCalendarGrid({
           )}
 
           {selectedDay.isBookable && approved && !booking && (
-            <div style={{ textAlign: "center", marginTop: selectedDay.sessions.length > 0 ? 16 : 0 }}>
-              <button type="button" className="btn" style={{ width: "auto" }} onClick={() => setBooking(true)}>
+            <div className="cal-book-row">
+              <button type="button" className="btn btn-auto" onClick={() => setBooking(true)}>
                 Book a session this day
               </button>
             </div>
           )}
 
           {selectedDay.isBookable && approved && booking && (
-            <div className="page-fade" key={`booking-${selectedDay.dateKey}`} style={{ marginTop: 16 }}>
+            <div className="page-fade cal-book-form" key={`booking-${selectedDay.dateKey}`}>
               <SessionBooking initialDate={selectedDay.dateKey} />
             </div>
           )}

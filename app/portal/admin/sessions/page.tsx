@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
-import { formatWhen } from "@/lib/format";
+import { formatWhen, sessionPaymentLabel } from "@/lib/format";
+import StatusPill from "@/components/StatusPill";
 
 export default async function AdminSessionsPage() {
   const supabase = await createClient();
@@ -45,7 +46,7 @@ export default async function AdminSessionsPage() {
         </div>
 
         <div className="session-list">
-          {(upcoming ?? []).length === 0 && <p className="notice">No upcoming sessions.</p>}
+          {(upcoming ?? []).length === 0 && <p className="empty-state">No upcoming sessions.</p>}
           {(upcoming ?? []).map((s: Record<string, any>) => {
             const client = s.clients as {
               full_name: string | null;
@@ -55,7 +56,11 @@ export default async function AdminSessionsPage() {
             return (
               <div className="session-row" key={s.id}>
                 <div>
-                  <strong>{client?.full_name || client?.email || "Client"}</strong>
+                  <strong>
+                    <Link href={`/portal/admin/clients/${s.client_id}`}>
+                      {client?.full_name || client?.email || "Client"}
+                    </Link>
+                  </strong>
                   <div className="meta">
                     {formatWhen(new Date(s.scheduled_at))} &middot;{" "}
                     {s.duration_minutes} min &middot; ${(s.rate_cents / 100).toFixed(2)}
@@ -64,16 +69,21 @@ export default async function AdminSessionsPage() {
                     {client?.email}
                     {client?.phone ? ` · ${client.phone}` : ""}
                   </div>
-                  <div className="meta">Status: {s.status.replaceAll("_", " ")}</div>
+                  <div className="row-pills">
+                    <StatusPill value={s.status} />
+                    <span className={`status-pill ${s.status === "pending_payment" ? "brass" : "teal"}`}>
+                      {sessionPaymentLabel(s)}
+                    </span>
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <div className="row-actions">
                   {s.status === "scheduled" && (
-                    <Link href={`/portal/session/${s.id}`} className="btn" style={{ width: "auto" }}>
+                    <Link href={`/portal/session/${s.id}`} className="btn btn-auto btn-sm">
                       Open room
                     </Link>
                   )}
                   <form action={`/api/sessions/${s.id}/cancel`} method="post">
-                    <button className="btn btn-secondary" type="submit">
+                    <button className="btn btn-danger btn-auto btn-sm" type="submit">
                       Cancel
                     </button>
                   </form>

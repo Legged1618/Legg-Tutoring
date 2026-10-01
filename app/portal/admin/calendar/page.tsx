@@ -38,7 +38,7 @@ export default async function AdminCalendarPage({
   }
 
   const now = new Date();
-  const { windowStartKey, mondayKey, boundaries, dayMeta, rangeLabel, prevKey, nextKey } =
+  const { windowStartKey, mondayKey, todayKey, boundaries, dayMeta, rangeLabel, prevKey, nextKey } =
     computeCalendarWindow(WINDOW_DAYS, start, now);
 
   const rangeStart = boundaries[0].toISOString();
@@ -171,10 +171,11 @@ export default async function AdminCalendarPage({
         nextHref={`/portal/admin/calendar?start=${nextKey}`}
         todayHref="/portal/admin/calendar"
         isTodayWindow={windowStartKey === mondayKey}
+        todayKey={todayKey}
       />
 
       <div className="time-off-panel">
-        <div className="section-head" style={{ marginBottom: 16 }}>
+        <div className="section-head sub">
           <h3>Time off</h3>
           <p>Block a day (or stretch of days) off your own schedule. Doesn&apos;t touch anything already booked.</p>
         </div>
@@ -196,7 +197,7 @@ export default async function AdminCalendarPage({
             <label htmlFor="reason">Reason (optional)</label>
             <input id="reason" name="reason" type="text" placeholder="e.g. vacation" />
           </div>
-          <button className="btn" type="submit" style={{ width: "auto" }}>
+          <button className="btn btn-auto" type="submit">
             Block this time
           </button>
         </form>

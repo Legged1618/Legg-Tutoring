@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeNext } from "@/lib/safeNext";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { setClientApproval } from "@/lib/clients";
 
@@ -53,6 +54,6 @@ export async function POST(
   });
 
   const next = new URL(request.url).searchParams.get("next");
-  const redirectUrl = new URL(next || "/portal/admin", request.url);
+  const redirectUrl = new URL(safeNext(next, "/portal/admin"), request.url);
   return NextResponse.redirect(redirectUrl, { status: 303 });
 }

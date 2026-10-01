@@ -1,4 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { notifyTutor } from "@/lib/push";
+import { formatShort } from "@/lib/format";
 import { createAdminClient } from "@/lib/supabase/server";
 import {
   BOOKING_WINDOW_DAYS,
@@ -96,6 +98,14 @@ export async function POST(request: Request) {
     // Booking already succeeded; don't fail the request over email delivery.
     console.error("Consultation email failed to send", err);
   }
+
+  after(() =>
+    notifyTutor({
+      title: "New consultation booked",
+      body: `${consultation.full_name}, ${formatShort(new Date(consultation.scheduled_at))}`,
+      url: "/portal/admin",
+    })
+  );
 
   return NextResponse.json({ consultation });
 }

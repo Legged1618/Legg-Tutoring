@@ -38,5 +38,13 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Already signed in: skip the sign-in form and go straight to the portal.
+  if (isLoginRoute && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/portal";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   return response;
 }

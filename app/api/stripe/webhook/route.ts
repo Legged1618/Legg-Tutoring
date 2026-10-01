@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { notifyTutor } from "@/lib/push";
+import { formatShort } from "@/lib/format";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -65,6 +67,11 @@ export async function POST(request: Request) {
         } catch (err) {
           console.error("Session confirmation email failed to send", err);
         }
+        await notifyTutor({
+          title: "New paid session",
+          body: `${client?.full_name || client?.email || "A client"}, ${session.duration_minutes} min, ${formatShort(details.scheduledAt)}`,
+          url: `/portal/admin/clients/${session.client_id}`,
+        });
       }
     }
   }

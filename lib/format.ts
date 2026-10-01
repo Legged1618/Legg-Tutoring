@@ -48,3 +48,13 @@ export function sessionPaymentLabel(s: Record<string, any>): string {
   if (s.amount_paid_cents > 0) return `Paid ${dollars(s.amount_paid_cents)}`;
   return "Not paid";
 }
+
+/** "3:00 PM" */
+export function formatTime(date: Date): string {
+  return date.toLocaleTimeString("en-US", { timeZone: TUTOR_TIMEZONE, hour: "numeric", minute: "2-digit" });
+}
+
+/** "Thursday, October 1" */
+export function formatDay(date: Date): string {
+  return date.toLocaleDateString("en-US", { timeZone: TUTOR_TIMEZONE, weekday: "long", month: "long", day: "numeric" });
+}

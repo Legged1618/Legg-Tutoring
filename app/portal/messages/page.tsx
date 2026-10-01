@@ -5,6 +5,7 @@ import { fetchThread, markThreadRead } from "@/lib/messages";
 import { formatShort } from "@/lib/format";
 import { TUTOR_NAME } from "@/lib/tutor";
 import MessageThread from "@/components/MessageThread";
+import LiveRefresh from "@/components/LiveRefresh";
 
 export default async function ClientMessagesPage({
   searchParams,
@@ -48,6 +49,7 @@ export default async function ClientMessagesPage({
 
   return (
     <div className="portal-shell wrap">
+      <LiveRefresh seconds={10} />
       <div className="section-head">
         <h2>Messages</h2>
         <p>Questions about a session, or anything else. {TUTOR_NAME} will reply here.</p>

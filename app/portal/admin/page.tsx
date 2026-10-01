@@ -47,7 +47,7 @@ export default async function AdminPage() {
         </div>
 
         <div className="session-list">
-          {(pending ?? []).length === 0 && <p className="notice">Nothing pending.</p>}
+          {(pending ?? []).length === 0 && <p className="empty-state">Nothing pending.</p>}
           {(pending ?? []).map((c: Record<string, any>) => (
             <div className="session-row" key={c.id}>
               <div>
@@ -58,16 +58,16 @@ export default async function AdminPage() {
                 </div>
                 {c.subject && <div className="meta">Subject: {c.subject}</div>}
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div className="row-actions">
                 <form action={`/api/consultations/${c.id}/outcome`} method="post">
                   <input type="hidden" name="outcome" value="good_fit" />
-                  <button className="btn" type="submit" style={{ width: "auto" }}>
+                  <button className="btn btn-auto btn-sm" type="submit">
                     Good fit
                   </button>
                 </form>
                 <form action={`/api/consultations/${c.id}/outcome`} method="post">
                   <input type="hidden" name="outcome" value="not_a_fit" />
-                  <button className="btn btn-secondary" type="submit" style={{ width: "auto" }}>
+                  <button className="btn btn-secondary btn-auto btn-sm" type="submit">
                     Not a fit
                   </button>
                 </form>

@@ -29,6 +29,14 @@ This is a scaffold: the structure and logic are in place, but it needs real acco
 
 Every booking used to also email `TUTOR_EMAIL`. That's gone -- `/portal/admin/notifications` is now the one place to check for new consultations, new paid sessions, and cancellations (last 30 days, newest first). It's a plain read of existing data, not a new table, so there's nothing to configure and nothing that can silently stop working. Client-facing confirmation emails are unchanged.
 
+### Desktop alerts
+
+On top of the Notifications tab, the tutor can get a pop-up on any computer or phone browser for new consultations, paid sessions, cancellations and client messages (Web Push, `lib/push.ts` + `public/sw.js`). Open **Notifications** in the admin portal and click **Turn on**; each browser is turned on separately and they all get every alert. Clicking an alert opens the right page. Installing the site as an app (Chrome/Edge: the install icon in the address bar) keeps alerts tidy on a dedicated machine.
+
+Admin pages and the client Messages page also refresh themselves every few seconds while open, so new messages and bookings appear without a reload.
+
+Setup: run `supabase/migrations/2026-10-01-push-subscriptions.sql`, then set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (make a pair with `npx web-push generate-vapid-keys`) and redeploy. `VAPID_SUBJECT` is optional and defaults to `mailto:` + `TUTOR_EMAIL`.
+
 ## One-time setup
 
 ### 1. Supabase (auth + database) — free

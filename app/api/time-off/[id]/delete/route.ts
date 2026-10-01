@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeNext } from "@/lib/safeNext";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 export async function POST(
@@ -22,7 +23,7 @@ export async function POST(
   await admin.from("time_off").delete().eq("id", id);
 
   const next = new URL(request.url).searchParams.get("next");
-  return NextResponse.redirect(new URL(next || "/portal/admin/calendar", request.url), {
+  return NextResponse.redirect(new URL(safeNext(next, "/portal/admin/calendar"), request.url), {
     status: 303,
   });
 }
