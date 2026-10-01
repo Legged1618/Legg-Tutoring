@@ -20,6 +20,7 @@ export async function GET(request: Request) {
   const rangeStart = new Date(now.getTime() - FEED_LOOKBACK_DAYS * 86400000).toISOString();
   const rangeEnd = new Date(now.getTime() + FEED_LOOKAHEAD_DAYS * 86400000).toISOString();
   const scriptUrl = process.env.CALL_SCRIPT_URL;
+  const origin = new URL(request.url).origin;
 
   const [{ data: consultations }, { data: sessions }] = await Promise.all([
     admin
@@ -47,6 +48,7 @@ export async function GET(request: Request) {
       end,
       summary: `Consultation: ${c.full_name}`,
       description: buildConsultationChecklist(c as any, scriptUrl),
+      location: `${origin}/consultation/room/${c.id}`,
     });
   }
 
@@ -61,6 +63,7 @@ export async function GET(request: Request) {
       end,
       summary: `Virtual session: ${clientLabel}`,
       description: buildSessionChecklist(s as any, client),
+      location: `${origin}/portal/session/${s.id}`,
     });
   }
 

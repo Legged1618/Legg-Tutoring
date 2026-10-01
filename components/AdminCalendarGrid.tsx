@@ -17,6 +17,7 @@ export type CalendarEntry = {
   outcome?: string;
   clientEmail?: string;
   clientPhone?: string;
+  roomHref?: string;
 };
 
 export type CalendarDay = {
@@ -185,6 +186,12 @@ export default function AdminCalendarGrid({
           )}
 
           <div className="cal-action-row">
+            {selectedEntry.roomHref && selectedEntry.status === "scheduled" && (
+              <Link href={selectedEntry.roomHref} className="btn" style={{ width: "auto" }}>
+                Open room
+              </Link>
+            )}
+
             {selectedEntry.kind === "consultation" &&
               selectedEntry.status === "scheduled" &&
               selectedEntry.outcome === "pending" && (

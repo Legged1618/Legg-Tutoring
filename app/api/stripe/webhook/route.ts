@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendSessionConfirmationToClient } from "@/lib/email";
+import { ensureRoom } from "@/lib/twiddla";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -51,6 +52,15 @@ export async function POST(request: Request) {
           email: string;
           phone: string | null;
         } | null;
+        // Set up the session's Twiddla room now so it's ready well before
+        // the start. If this fails, the join page retries on first visit.
+        await ensureRoom(
+          admin,
+          "sessions",
+          session,
+          `Legg Tutoring: ${client?.full_name || client?.email || "Client"}`
+        );
+
         const details = {
           id: session.id,
           scheduledAt: new Date(session.scheduled_at),
@@ -61,7 +71,7 @@ export async function POST(request: Request) {
           clientPhone: client?.phone ?? null,
         };
         try {
-          await sendSessionConfirmationToClient(details);
+          await sendSessionConfirmationToClient(details, new URL(request.url).origin);
         } catch (err) {
           console.error("Session confirmation email failed to send", err);
         }

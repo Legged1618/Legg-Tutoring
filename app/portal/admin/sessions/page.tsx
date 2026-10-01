@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
@@ -64,11 +65,18 @@ export default async function AdminSessionsPage() {
                   </div>
                   <div className="meta">Status: {s.status.replaceAll("_", " ")}</div>
                 </div>
-                <form action={`/api/sessions/${s.id}/cancel`} method="post">
-                  <button className="btn btn-secondary" type="submit">
-                    Cancel
-                  </button>
-                </form>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  {s.status === "scheduled" && (
+                    <Link href={`/portal/session/${s.id}`} className="btn" style={{ width: "auto" }}>
+                      Open room
+                    </Link>
+                  )}
+                  <form action={`/api/sessions/${s.id}/cancel`} method="post">
+                    <button className="btn btn-secondary" type="submit">
+                      Cancel
+                    </button>
+                  </form>
+                </div>
               </div>
             );
           })}

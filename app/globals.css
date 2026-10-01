@@ -836,3 +836,22 @@ footer {
   font-size: 0.9rem;
   color: var(--ink-soft);
 }
+
+/* Live session room (embedded Twiddla) */
+.session-room .section-head {
+  margin-bottom: 20px;
+}
+
+.session-room-frame {
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.session-room-frame iframe {
+  display: block;
+  width: 100%;
+  height: min(78vh, 820px);
+  border: 0;
+}

@@ -7,7 +7,7 @@ export function buildConsultationChecklist(
   return [
     "To do:",
     scriptUrl ? `☐ Open the call script: ${scriptUrl}` : "☐ Open your call script",
-    `☐ Call/video with ${c.full_name} at the scheduled time`,
+    `☐ Open the room and meet ${c.full_name} at the scheduled time`,
     "☐ Afterward, mark \"Good fit\" or \"Not a fit\" in the Consultations tab",
     "",
     `Contact: ${c.email}${c.phone ? ` · ${c.phone}` : ""}`,
@@ -25,7 +25,7 @@ export function buildSessionChecklist(
   const label = client?.full_name || client?.email || "the client";
   return [
     "To do:",
-    `☐ Join the video call with ${label} at the scheduled time`,
+    `☐ Open the room and meet ${label} at the scheduled time`,
     `☐ Paid in full ($${(s.rate_cents / 100).toFixed(2)}) — no payment action needed`,
     "",
     client?.email ? `Contact: ${client.email}${client.phone ? ` · ${client.phone}` : ""}` : null,

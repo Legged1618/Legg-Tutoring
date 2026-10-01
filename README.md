@@ -61,14 +61,24 @@ Every scheduled consultation and paid session is available as a private ICS feed
 
 This is one-way and read-only by design: it shows what's booked, but cancelling/editing still happens through the portal or admin, not by touching the calendar event itself. Each event's description includes the client's contact info and (for consultations) the `CALL_SCRIPT_URL` link.
 
-### 5. Vercel (hosting) — free for this size of site
+### 5. Twiddla (live session room) — Pro, $14/month
+
+Each paid session and consultation gets its own private Twiddla room (whiteboard, chat and voice), created automatically when the session is paid or the consultation is booked, and embedded on the site at `/portal/session/<id>` (login required) or `/consultation/room/<id>` (link from the confirmation email). Clients don't need a Twiddla account. The room opens to the client 10 minutes before the start; the tutor can open it any time to set up the board.
+
+1. Sign up for Twiddla **Pro** (the free plan ends meetings after 20 minutes).
+2. Put the login in `TWIDDLA_USERNAME` and `TWIDDLA_PASSWORD`.
+3. Run the `twiddla_meeting_*` `alter table` lines at the bottom of `supabase/schema.sql` once in the Supabase SQL editor.
+
+If room creation fails (missing login, Twiddla down), the booking still goes through and the room is retried the next time the join page is opened.
+
+### 6. Vercel (hosting) — free for this size of site
 
 1. Create an account at [vercel.com](https://vercel.com) and import this GitHub repo.
 2. Add every variable from `.env.example` as an Environment Variable in the Vercel project settings.
 3. Deploy.
 4. To use leggtutoring.com, add it under **Settings > Domains** in Vercel and update your DNS at your registrar to point at Vercel instead of GitHub Pages (the old `CNAME` file was for GitHub Pages and has been removed).
 
-### 6. Rates and availability
+### 7. Rates and availability
 
 - `lib/pricing.ts` — `virtualHourlyRateCents` (currently 6500 = $65/hr) and `lateCancelFlatFeeCents` (currently 1000 = $10), both in cents.
 - `lib/availability.ts` — edit `WEEKLY_AVAILABILITY` to your real working hours (day of week + start/end time, in `TUTOR_TIMEZONE`). Applies to both consultations and paid sessions.

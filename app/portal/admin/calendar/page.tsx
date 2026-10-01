@@ -92,6 +92,7 @@ export default async function AdminCalendarPage({
       outcome: c.outcome,
       clientEmail: c.email,
       clientPhone: c.phone,
+      roomHref: `/consultation/room/${c.id}`,
     });
   }
 
@@ -118,6 +119,7 @@ export default async function AdminCalendarPage({
       status: s.status,
       clientEmail: client?.email,
       clientPhone: client?.phone ?? undefined,
+      roomHref: `/portal/session/${s.id}`,
     });
   }
 

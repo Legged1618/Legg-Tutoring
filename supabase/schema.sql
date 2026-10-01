@@ -132,3 +132,12 @@ create policy "clients read own sessions"
 --
 -- No policies at all for time_off either -- only the tutor-gated API
 -- routes (service role) ever read or write it.
+
+-- Twiddla rooms (whiteboard + voice) for live sessions and consultations.
+-- One private, password-protected room per booking, created by the server
+-- when a session is paid or a consultation is booked (see lib/twiddla.ts).
+-- Safe to re-run on an existing database.
+alter table public.sessions add column if not exists twiddla_meeting_id text;
+alter table public.sessions add column if not exists twiddla_meeting_password text;
+alter table public.consultations add column if not exists twiddla_meeting_id text;
+alter table public.consultations add column if not exists twiddla_meeting_password text;

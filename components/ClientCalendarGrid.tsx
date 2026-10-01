@@ -123,6 +123,11 @@ export default function ClientCalendarGrid({
                 <strong>{s.timeLabel}</strong> &middot; {s.title}
                 <div className="meta">{s.status.replaceAll("_", " ")}</div>
               </span>
+              {s.status === "scheduled" && (
+                <Link href={`/portal/session/${s.id}`} className="btn" style={{ width: "auto" }}>
+                  Join
+                </Link>
+              )}
               {(s.status === "scheduled" || s.status === "pending_payment") && (
                 <form
                   action={`/api/sessions/${s.id}/cancel?next=${encodeURIComponent(returnTo)}`}
