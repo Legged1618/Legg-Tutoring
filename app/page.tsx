@@ -4,7 +4,9 @@ import SiteFooter from "@/components/SiteFooter";
 import ProblemShuffle from "@/components/ProblemShuffle";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import ProfileAvatar from "@/components/ProfileAvatar";
-import ArticleArt, { type ArticleArtKind } from "@/components/ArticleArt";
+import ArticleImage from "@/components/ArticleImage";
+import { getPreviewImage } from "@/lib/linkPreview";
+import type { ArticleArtKind } from "@/components/ArticleArt";
 import Reveal from "@/components/Reveal";
 import { createClient } from "@/lib/supabase/server";
 import { PRICING, CANCELLATION_WINDOW_HOURS, sessionPriceCents } from "@/lib/pricing";
@@ -120,6 +122,7 @@ export default async function HomePage() {
     data: { session },
   } = await supabase.auth.getSession();
   const user = session?.user ?? null;
+  const previews = await Promise.all(ARTICLES.map((a) => getPreviewImage(a.href)));
   const isTutor = Boolean(
     user && process.env.TUTOR_EMAIL && user.email === process.env.TUTOR_EMAIL
   );
@@ -521,7 +524,7 @@ export default async function HomePage() {
               <Reveal as="article" className="article-card" key={a.title} delay={(i % 3) * 90}>
                 <a href={a.href} target="_blank" rel="noopener noreferrer">
                   <div className="article-image">
-                    <ArticleArt kind={a.art} />
+                    <ArticleImage src={previews[i]} art={a.art} alt={`Preview of ${a.source}`} />
                   </div>
                   <div className="article-body">
                     <span className="article-tag">{a.tag}</span>

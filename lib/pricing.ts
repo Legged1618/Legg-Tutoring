@@ -10,13 +10,12 @@ export const PRICING = {
 } as const;
 
 /**
- * What each session length costs. Hourly rate pro rata, except two hours,
- * which is discounted ($120 instead of $130).
+ * What each session length costs: the hourly rate, pro rata.
  */
 export const SESSION_PRICE_CENTS: Record<number, number> = {
   30: 3250,
   60: 6500,
-  120: 12000,
+  120: 13000,
 };
 
 export function sessionPriceCents(durationMinutes: number): number {
