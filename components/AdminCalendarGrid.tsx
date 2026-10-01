@@ -11,13 +11,17 @@ export type CalendarEntry = {
   timeLabel: string;
   title: string;
   colorState: "upcoming" | "resolved";
-  checklist: string;
   scriptUrl?: string;
+  /** Sessions only: "Paid $65.00", "Not paid yet", etc. */
+  payment?: string;
   status: string;
   outcome?: string;
   clientEmail?: string;
   clientPhone?: string;
   roomHref?: string;
+  clientHref?: string;
+  subject?: string;
+  notes?: string;
 };
 
 export type CalendarDay = {
@@ -174,7 +178,13 @@ export default function AdminCalendarGrid({
             </p>
           )}
 
-          <pre className="cal-detail-checklist">{selectedEntry.checklist}</pre>
+          {selectedEntry.payment && (
+            <p className={`cal-payment${selectedEntry.status === "pending_payment" ? " unpaid" : ""}`}>
+              {selectedEntry.payment}
+            </p>
+          )}
+          {selectedEntry.subject && <p className="meta">Subject: {selectedEntry.subject}</p>}
+          {selectedEntry.notes && <p className="meta">Notes: {selectedEntry.notes}</p>}
 
           {selectedEntry.kind === "consultation" && selectedEntry.scriptUrl && (
             <p className="notice" style={{ marginTop: 10 }}>
@@ -189,6 +199,12 @@ export default function AdminCalendarGrid({
             {selectedEntry.roomHref && selectedEntry.status === "scheduled" && (
               <Link href={selectedEntry.roomHref} className="btn" style={{ width: "auto" }}>
                 Open room
+              </Link>
+            )}
+
+            {selectedEntry.clientHref && (
+              <Link href={selectedEntry.clientHref} className="btn btn-secondary" style={{ width: "auto" }}>
+                View client
               </Link>
             )}
 

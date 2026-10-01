@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
 import AdminCalendarGrid, { type CalendarDay, type CalendarEntry } from "@/components/AdminCalendarGrid";
-import { buildConsultationChecklist, buildSessionChecklist } from "@/lib/bookingChecklist";
 import { TUTOR_TIMEZONE } from "@/lib/availability";
+import { sessionPaymentLabel } from "@/lib/format";
 import { computeCalendarWindow, dateKeyFor } from "@/lib/calendarWindow";
 
 // A multiple of 7 -- keeps Previous/Next always landing on a Monday,
@@ -46,7 +46,7 @@ export default async function AdminCalendarPage({
   const scriptUrl = process.env.CALL_SCRIPT_URL;
 
   const admin = createAdminClient();
-  const [{ data: consultations }, { data: sessions }, { data: timeOff }] = await Promise.all([
+  const [{ data: consultations }, { data: sessions }, { data: timeOff }, { data: clientRows }] = await Promise.all([
     admin
       .from("consultations")
       .select("*")
@@ -63,7 +63,14 @@ export default async function AdminCalendarPage({
       .lt("starts_at", rangeEnd)
       .gt("ends_at", rangeStart)
       .order("starts_at", { ascending: true }),
+    admin.from("clients").select("id, email"),
   ]);
+
+  // Consultations are keyed by email, not client id, so map them over to
+  // link each booking to its client page.
+  const clientIdByEmail = new Map(
+    ((clientRows ?? []) as { id: string; email: string }[]).map((c) => [c.email, c.id])
+  );
 
   const entriesByDate = new Map<string, CalendarEntry[]>();
 
@@ -86,12 +93,14 @@ export default async function AdminCalendarPage({
       }),
       title: c.full_name,
       colorState: resolved ? "resolved" : "upcoming",
-      checklist: buildConsultationChecklist(c as any, scriptUrl),
       scriptUrl,
       status: c.status,
       outcome: c.outcome,
       clientEmail: c.email,
       clientPhone: c.phone,
+      clientHref: clientIdByEmail.has(c.email) ? `/portal/admin/clients/${clientIdByEmail.get(c.email)}` : undefined,
+      subject: c.subject ?? undefined,
+      notes: c.notes ?? undefined,
     });
   }
 
@@ -114,11 +123,12 @@ export default async function AdminCalendarPage({
       title:
         s.status === "pending_payment" ? `${label} (${s.duration_minutes} min) — unpaid` : `${label} (${s.duration_minutes} min)`,
       colorState: resolved ? "resolved" : "upcoming",
-      checklist: buildSessionChecklist(s as any, client),
+      payment: sessionPaymentLabel(s),
       status: s.status,
       clientEmail: client?.email,
       clientPhone: client?.phone ?? undefined,
       roomHref: `/portal/session/${s.id}`,
+      clientHref: `/portal/admin/clients/${s.client_id}`,
     });
   }
 

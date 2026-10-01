@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatWhen } from "@/lib/format";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
 import { stripe } from "@/lib/stripe";
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
           currency: PRICING.currency,
           unit_amount: rateCents,
           product_data: {
-            name: `Tutoring session — ${new Date(sessionStart).toLocaleString()}`,
+            name: `Tutoring Session: ${formatWhen(new Date(sessionStart))}`,
           },
         },
         quantity: 1,

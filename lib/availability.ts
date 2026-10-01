@@ -14,7 +14,8 @@ export const CONSULTATION_DURATION_MINUTES = 15;
 export const SESSION_DURATIONS_MINUTES = [30, 60, 120] as const;
 export type SessionDurationMinutes = (typeof SESSION_DURATIONS_MINUTES)[number];
 
-export const BOOKING_WINDOW_DAYS = 14;
+// How far out anything (sessions or consultations) can be booked.
+export const BOOKING_WINDOW_DAYS = 30;
 // Free consultations: same-day is fine, just a couple hours' buffer.
 export const MIN_NOTICE_HOURS = 2;
 // Paid sessions: a real commitment on both sides, so require real notice.

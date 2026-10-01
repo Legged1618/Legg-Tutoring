@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
+import { formatWhen } from "@/lib/format";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -52,7 +53,7 @@ export default async function AdminPage() {
               <div>
                 <strong>{c.full_name}</strong>
                 <div className="meta">
-                  {new Date(c.scheduled_at).toLocaleString()} &middot; {c.email}
+                  {formatWhen(new Date(c.scheduled_at))} &middot; {c.email}
                   {c.phone ? ` · ${c.phone}` : ""}
                 </div>
                 {c.subject && <div className="meta">Subject: {c.subject}</div>}

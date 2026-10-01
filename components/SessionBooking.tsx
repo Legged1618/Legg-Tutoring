@@ -5,6 +5,12 @@ import { groupSlotsByDay } from "@/lib/slotDisplay";
 
 const DURATIONS = [30, 60, 120] as const;
 
+const LENGTH_LABELS: Record<(typeof DURATIONS)[number], string> = {
+  30: "half-hour",
+  60: "hour-long",
+  120: "two-hour",
+};
+
 type SlotsResponse = {
   slots: string[];
   timezone: string;
@@ -99,8 +105,8 @@ export default function SessionBooking({ initialDate }: { initialDate?: string }
       {!loadError && data && slots.length === 0 && (
         <p className="notice">
           {initialDate
-            ? "No open times that day for that length — try a different length or date."
-            : "No open times for that length in the next couple weeks — try a shorter session or check back soon."}
+            ? `There are no ${LENGTH_LABELS[durationMinutes]} bookings that day. Try a different day or a different session length.`
+            : "Legg Tutoring is currently fully booked for the next few weeks! Check back soon."}
         </p>
       )}
 

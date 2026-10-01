@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { formatWhen } from "@/lib/format";
 
 let resendClient: Resend | null = null;
 
@@ -28,17 +29,6 @@ export type ConsultationDetails = {
   scheduledAt: Date;
 };
 
-function formatWhen(date: Date): string {
-  return date.toLocaleString("en-US", {
-    timeZone: process.env.TUTOR_TIMEZONE || "America/New_York",
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  });
-}
 
 export async function sendConsultationConfirmationToClient(
   c: ConsultationDetails,
@@ -81,8 +71,8 @@ export async function sendSessionConfirmationToClient(s: SessionDetails, origin:
   await getResend().emails.send({
     from: fromAddress(),
     to: s.clientEmail,
-    subject: "Your tutoring session is confirmed — Legg Tutoring",
-    text: `Hi ${s.clientName || "there"},
+    subject: "Your session is confirmed!",
+    text: `Hello${s.clientName ? ` ${s.clientName}` : ""},
 
 Your ${s.durationMinutes}-minute virtual tutoring session is confirmed and paid for:
 
@@ -92,10 +82,28 @@ At the scheduled time, join your session here (it opens 10 minutes early, right 
 
 ${roomUrl}
 
-To cancel or reschedule, sign into your portal at any time -- cancelling 24+ hours out gets a full refund, inside 24 hours a $10 flat fee applies.
+To cancel your session, sign in to your portal at any time.
 
 See you then,
 Legg Tutoring`,
   });
 }
 
+
+export async function sendNewMessageToClient(
+  c: { clientName: string | null; clientEmail: string },
+  origin: string
+) {
+  await getResend().emails.send({
+    from: fromAddress(),
+    to: c.clientEmail,
+    subject: "You have a new message from Legg Tutoring",
+    text: `Hello${c.clientName ? ` ${c.clientName}` : ""},
+
+You have a new message from your tutor. Read and reply in your portal:
+
+${origin}/portal/messages
+
+Legg Tutoring`,
+  });
+}

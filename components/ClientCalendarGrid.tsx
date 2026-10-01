@@ -128,6 +128,15 @@ export default function ClientCalendarGrid({
                   Join
                 </Link>
               )}
+              {s.status === "scheduled" && (
+                <Link
+                  href={`/portal/messages?session=${s.id}`}
+                  className="btn btn-secondary"
+                  style={{ width: "auto" }}
+                >
+                  Message
+                </Link>
+              )}
               {(s.status === "scheduled" || s.status === "pending_payment") && (
                 <form
                   action={`/api/sessions/${s.id}/cancel?next=${encodeURIComponent(returnTo)}`}
@@ -147,8 +156,8 @@ export default function ClientCalendarGrid({
 
           {selectedDay.isBookable && !approved && (
             <p className="notice" style={{ marginTop: selectedDay.sessions.length > 0 ? 16 : 0 }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua.
+              Book a free consultation call on the <Link href="/">main page</Link> to get started.
+              If Legg Tutoring is a good fit for your needs, you&apos;ll book sessions on this page.
             </p>
           )}
 

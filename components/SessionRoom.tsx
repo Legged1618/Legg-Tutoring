@@ -53,8 +53,8 @@ export default function SessionRoom({
         <p className="notice">{closedMessage}</p>
       ) : !isTutor && windowState === "early" ? (
         <p className="notice">
-          Your room opens {JOIN_OPENS_MINUTES_BEFORE} minutes before the start time. Come back to
-          this page then &mdash; no download or account needed.
+          This room opens {JOIN_OPENS_MINUTES_BEFORE} minutes before the session begins. Come back
+          to this page then to join the session.
         </p>
       ) : !isTutor && windowState === "ended" ? (
         <p className="notice">This session has ended.</p>

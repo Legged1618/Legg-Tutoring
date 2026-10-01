@@ -59,9 +59,14 @@ export default function AccountMenu({
                 Admin portal
               </Link>
             ) : (
-              <Link href="/portal" onClick={() => setOpen(false)}>
-                My sessions
-              </Link>
+              <>
+                <Link href="/portal" onClick={() => setOpen(false)}>
+                  My sessions
+                </Link>
+                <Link href="/portal/messages" onClick={() => setOpen(false)}>
+                  Messages
+                </Link>
+              </>
             )}
             <Link href="/portal/profile" onClick={() => setOpen(false)}>
               Profile
