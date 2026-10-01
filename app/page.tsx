@@ -17,9 +17,9 @@ const STEPS = [
     body: "Pick a 15-minute slot. No account or payment needed. We'll talk about the class, the goals and what's been getting in the way.",
   },
   {
-    title: "Pick your sessions",
-    short: "See open times and book in your portal.",
-    body: "After the call you can sign in to your portal, see open times on a calendar and book 30-minute, 1-hour or 2-hour sessions.",
+    title: "Book paid sessions",
+    short: "Pick open times in your portal and pay when you book.",
+    body: "After the call you can sign in to your portal, see open times on a calendar and book 30-minute, 1-hour or 2-hour sessions. Sessions are paid when you book.",
   },
   {
     title: "Meet online",
@@ -232,9 +232,9 @@ export default async function HomePage() {
                   <div className="hero-grid">
                     <div className="hero-copy">
                       <span className="eyebrow">Pricing &amp; policies</span>
-                      <h2 className="hero-title">Your first call is free</h2>
+                      <h2 className="hero-title">Free call, paid sessions</h2>
                       <p className="lede">
-                        Sessions are {dollars(hourly)} an hour, paid when you book, with a full refund
+                        The consultation call is always free. Tutoring sessions are {dollars(hourly)} an hour, paid when you book, with a full refund
                         if you cancel at least {CANCELLATION_WINDOW_HOURS} hours ahead.
                       </p>
                       <div className="hero-cta-row">
@@ -282,10 +282,10 @@ export default async function HomePage() {
           />
           <ul className="hero-facts">
             <li>
-              <strong>Free</strong> 15-minute consultation
+              <strong>Free</strong> 15-minute consultation call
             </li>
             <li>
-              <strong>{dollars(hourly)}</strong> per hour, flat
+              <strong>{dollars(hourly)}</strong> per hour for sessions
             </li>
             <li>
               <strong>Online</strong> from anywhere in the U.S.
@@ -393,7 +393,7 @@ export default async function HomePage() {
           <Reveal className="section-head">
             <span className="section-number">04</span>
             <h2>Pricing &amp; policies</h2>
-            <p>One flat rate, paid when you book. No packages or contracts.</p>
+            <p>The consultation call is free. Tutoring sessions are paid, at one flat hourly rate, when you book.</p>
           </Reveal>
           <div className="pricing-grid">
             <Reveal className="price-card">
@@ -403,19 +403,19 @@ export default async function HomePage() {
               <ul className="check-list">
                 <li>Talk through goals and where things stand</li>
                 <li>See if we&apos;re a good fit</li>
-                <li>No payment details needed</li>
+                <li>Always free, no payment details needed</li>
               </ul>
               <Link href="/consultation" className="btn btn-secondary">
                 Book a free call
               </Link>
             </Reveal>
             <Reveal className="price-card featured" delay={90}>
-              <span className="price-label">Tutoring session</span>
+              <span className="price-label">Paid tutoring session</span>
               <div className="price-amount">
                 {dollars(hourly)}
                 <span>/hour</span>
               </div>
-              <p className="price-sub">Live online, one-on-one</p>
+              <p className="price-sub">Live online, one-on-one, paid when you book</p>
               <ul className="price-options">
                 <li>
                   <span>30 minutes</span>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ConsultationBooking from "@/components/ConsultationBooking";
+import { PRICING } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "Book a free consultation | Legg Tutoring",
@@ -18,7 +19,7 @@ export default function ConsultationPage() {
           <h1>Book a free consultation</h1>
           <p>
             A quick phone call so we can get to know each other before any sessions are booked.
-            There&apos;s no cost and no commitment.
+            The call is free, with no commitment. Tutoring sessions after it are paid, ${PRICING.virtualHourlyRateCents / 100} an hour, when you book them.
           </p>
           <h2>What we&apos;ll talk about</h2>
           <ul className="check-list">
