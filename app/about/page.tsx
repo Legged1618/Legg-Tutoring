@@ -160,9 +160,25 @@ export default function AboutPage() {
           <Reveal>
             <h2>Looking ahead</h2>
             <p>
-              I am preparing to begin graduate studies in mathematics internationally. My research
-              interests include harmonics, sound waves, light waves and functional analysis, and I
-              also want to pursue further studies in education leading to an EdD.
+              I&apos;m preparing to begin graduate studies in mathematics abroad. The questions that
+              pull me in come from harmonic analysis: the idea that a complicated signal can be
+              broken down into simple waves. A chord on a piano is a handful of frequencies sounding
+              at once. White light splits into a spectrum of colors. Fourier analysis gives a precise
+              way to take those signals apart and put them back together, and the same mathematics
+              sits behind digital audio, image compression and medical imaging.
+            </p>
+            <p>
+              Functional analysis is the framework that makes those ideas rigorous. Instead of
+              working with one function at a time, it treats whole families of functions as points
+              in a space with its own geometry, where you can measure distance and angle. In that
+              setting, a sound wave and a light wave become vectors, and breaking a signal into
+              frequencies becomes a change of coordinates. It&apos;s abstract, but it&apos;s some of
+              the most useful abstraction in mathematics, and it&apos;s a good answer to &ldquo;when
+              am I going to use this?&rdquo;
+            </p>
+            <p>
+              Further down the road, I want to pursue a Doctor of Education (EdD) so I can study how
+              people learn mathematics and bring that research straight back into how I teach.
             </p>
           </Reveal>
         </div>
