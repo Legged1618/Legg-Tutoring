@@ -2267,3 +2267,39 @@ header {
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* About page: teaching philosophy */
+.pull-quote {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-style: italic;
+  color: var(--teal);
+  border-left: 3px solid var(--brass);
+  padding: 4px 0 4px 20px;
+  margin: 8px 0 22px;
+}
+
+.reading-list {
+  margin-top: 28px;
+  padding: 20px 22px;
+  border-radius: 12px;
+  background: #EFE8D9;
+}
+
+.reading-list h3 {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+
+.reading-list ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.93rem;
+}

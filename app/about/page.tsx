@@ -64,14 +64,54 @@ export default function AboutPage() {
       <section className="band">
         <div className="wrap prose-block">
           <Reveal>
-            <h2>My story</h2>
+            <h2>Teaching philosophy</h2>
+            <blockquote className="pull-quote">&ldquo;When am I going to use this?&rdquo;</blockquote>
             <p>
-              Placeholder: how you got into math and teaching, and what made you start Legg
-              Tutoring. A few short paragraphs work best here.
+              I&apos;ve heard this question more times than I can count, and I&apos;ve asked it
+              myself. It comes from real struggle with a subject that can feel abstract and
+              disconnected from anything tangible. Mathematics can look like it exists only for its
+              own sake. John von Neumann warned about exactly this: that mathematics drifting too far
+              from its real-world sources risks becoming &ldquo;l&apos;art pour l&apos;art,&rdquo;
+              art for art&apos;s sake.
             </p>
             <p>
-              Placeholder: a moment with a student that shows what you love about tutoring.
+              At any level, math is a set of skills that can be learned, and anyone willing to put in
+              the work can learn them. Research backs this up. Carol Dweck&apos;s work on growth
+              mindset and Jo Boaler&apos;s on mathematical mindsets show that ability grows with
+              effort, and that mistakes are part of how it grows. Struggle isn&apos;t a sign that a
+              student isn&apos;t a &ldquo;math person.&rdquo; It&apos;s what learning math feels
+              like.
             </p>
+            <p>
+              Math is hard, and it&apos;s easy to think the only reward is getting past that
+              difficulty. I believe the reward is bigger. The reasoning and problem-solving habits
+              that math builds, out of necessity, carry over to everyday life and to the problems we
+              all face. George P&oacute;lya&apos;s <em>How to Solve It</em> laid out those habits
+              decades ago: understand the problem, make a plan, carry it out, and look back. They
+              work just as well on a hard decision as on a hard equation. John Dewey made a similar
+              case in <em>How We Think</em>: careful, reflective reasoning is a skill that has to be
+              practiced, and math is one of the best places to practice it. The National Research
+              Council&apos;s <em>Adding It Up</em> even counts seeing math as sensible, useful and
+              worthwhile as one of the five strands of being good at math.
+            </p>
+            <p>
+              So in every session the goal is two things: getting the math right, and building the
+              thinking that will still be useful long after the test.
+            </p>
+            <div className="reading-list">
+              <h3>Further reading</h3>
+              <ul>
+                <li>John von Neumann, &ldquo;The Mathematician&rdquo; (1947)</li>
+                <li>George P&oacute;lya, <em>How to Solve It</em> (1945)</li>
+                <li>John Dewey, <em>How We Think</em> (1910)</li>
+                <li>Carol S. Dweck, <em>Mindset: The New Psychology of Success</em> (2006)</li>
+                <li>Jo Boaler, <em>Mathematical Mindsets</em> (2016)</li>
+                <li>
+                  National Research Council, <em>Adding It Up: Helping Children Learn Mathematics</em>{" "}
+                  (2001)
+                </li>
+              </ul>
+            </div>
           </Reveal>
         </div>
       </section>
