@@ -1,4 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { notifyTutor } from "@/lib/push";
+import { formatShort } from "@/lib/format";
+import { safeNext } from "@/lib/safeNext";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
 import { stripe } from "@/lib/stripe";
@@ -77,7 +80,25 @@ export async function POST(
     })
     .eq("id", session.id);
 
+  if (!isTutor && session.status === "scheduled") {
+    after(async () => {
+      const { data: client } = await admin
+        .from("clients")
+        .select("full_name, email")
+        .eq("id", session.client_id)
+        .maybeSingle();
+      const fee = session.amount_paid_cents - refundCents;
+      await notifyTutor({
+        title: "Session cancelled",
+        body: `${client?.full_name || client?.email || "A client"}, was ${formatShort(new Date(session.scheduled_at))}${
+          fee > 0 ? `, $${(fee / 100).toFixed(2)} fee kept` : ""
+        }`,
+        url: `/portal/admin/clients/${session.client_id}`,
+      });
+    });
+  }
+
   const next = new URL(request.url).searchParams.get("next");
-  const redirectUrl = new URL(next || "/portal", request.url);
+  const redirectUrl = new URL(safeNext(next, "/portal"), request.url);
   return NextResponse.redirect(redirectUrl, { status: 303 });
 }

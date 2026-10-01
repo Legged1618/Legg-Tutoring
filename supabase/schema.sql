@@ -149,3 +149,15 @@ create table if not exists public.messages (
 create index if not exists messages_client_id_idx on public.messages (client_id, created_at);
 
 alter table public.messages enable row level security;
+
+-- Tutor desktop alerts (also in migrations/2026-10-01-push-subscriptions.sql).
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  user_agent text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.push_subscriptions enable row level security;

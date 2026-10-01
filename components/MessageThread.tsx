@@ -1,6 +1,7 @@
 import type { MessageSender, ThreadMessage } from "@/lib/messages";
-import { MAX_MESSAGE_LENGTH } from "@/lib/messages";
-import { formatShort } from "@/lib/format";
+import { formatDay, formatTime } from "@/lib/format";
+import ThreadScroller from "@/components/ThreadScroller";
+import MessageComposer from "@/components/MessageComposer";
 
 /**
  * One client's conversation with the tutor, plus the box to write back.
@@ -25,47 +26,35 @@ export default function MessageThread({
   defaultSessionId?: string;
   emptyText: string;
 }) {
+  let lastDay = "";
+
   return (
     <div className="message-thread">
-      <div className="message-list">
-        {messages.length === 0 && <p className="notice">{emptyText}</p>}
+      <ThreadScroller count={messages.length}>
+        {messages.length === 0 && <p className="empty-state">{emptyText}</p>}
         {messages.map((m) => {
           const mine = m.sender === viewer;
+          const at = new Date(m.createdAt);
+          const day = formatDay(at);
+          const showDay = day !== lastDay;
+          lastDay = day;
           return (
-            <div key={m.id} className={`message-bubble${mine ? " mine" : ""}`}>
-              {m.sessionLabel && <div className="message-tag">About the {m.sessionLabel}</div>}
-              <div className="message-body">{m.body}</div>
-              <div className="message-meta">
-                {mine ? "You" : otherName} &middot; {formatShort(new Date(m.createdAt))}
-                {mine && viewer === "tutor" && m.readAt ? " · Seen" : ""}
+            <div key={m.id} className="message-item">
+              {showDay && <div className="message-day">{day}</div>}
+              <div className={`message-bubble${mine ? " mine" : ""}`}>
+                {m.sessionLabel && <div className="message-tag">About the {m.sessionLabel}</div>}
+                <div className="message-body">{m.body}</div>
+                <div className="message-meta">
+                  {mine ? "You" : otherName} &middot; {formatTime(at)}
+                  {mine && viewer === "tutor" && m.readAt ? " · Seen" : ""}
+                </div>
               </div>
             </div>
           );
         })}
-      </div>
+      </ThreadScroller>
 
-      <form action={action} method="post" className="message-form">
-        {sessionOptions && sessionOptions.length > 0 && (
-          <div className="field">
-            <label htmlFor="sessionId">About</label>
-            <select id="sessionId" name="sessionId" defaultValue={defaultSessionId ?? ""}>
-              <option value="">A general question</option>
-              {sessionOptions.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        <div className="field">
-          <label htmlFor="body">Message</label>
-          <textarea id="body" name="body" rows={4} required maxLength={MAX_MESSAGE_LENGTH} />
-        </div>
-        <button className="btn" type="submit" style={{ width: "auto" }}>
-          Send
-        </button>
-      </form>
+      <MessageComposer action={action} sessionOptions={sessionOptions} defaultSessionId={defaultSessionId} />
     </div>
   );
 }

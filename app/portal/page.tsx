@@ -3,18 +3,26 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
 import { fetchBusyIntervals } from "@/lib/busyIntervals";
-import { BOOKING_WINDOW_DAYS, SESSION_DURATIONS_MINUTES, TUTOR_TIMEZONE, getAvailableSlots } from "@/lib/availability";
+import {
+  BOOKING_WINDOW_DAYS,
+  SESSION_DURATIONS_MINUTES,
+  SESSION_MIN_NOTICE_HOURS,
+  TUTOR_TIMEZONE,
+  getAvailableSlots,
+} from "@/lib/availability";
 import { computeCalendarWindow, dateKeyFor } from "@/lib/calendarWindow";
 import ClientCalendarGrid, { type ClientCalendarDay } from "@/components/ClientCalendarGrid";
+import LiveRefresh from "@/components/LiveRefresh";
+import { formatDay, formatTime } from "@/lib/format";
 
 const WINDOW_DAYS = 28;
 
 export default async function PortalDashboard({
   searchParams,
 }: {
-  searchParams: Promise<{ booked?: string; start?: string }>;
+  searchParams: Promise<{ booked?: string; cancelled?: string; start?: string }>;
 }) {
-  const { booked, start } = await searchParams;
+  const { booked, cancelled, start } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,7 +45,7 @@ export default async function PortalDashboard({
   const approved = client.approved;
 
   const now = new Date();
-  const { windowStartKey, mondayKey, boundaries, dayMeta, rangeLabel, prevKey, nextKey } =
+  const { windowStartKey, mondayKey, todayKey, boundaries, dayMeta, rangeLabel, prevKey, nextKey } =
     computeCalendarWindow(WINDOW_DAYS, start, now);
 
   const { count: unreadMessages } = await admin
@@ -46,6 +54,17 @@ export default async function PortalDashboard({
     .eq("client_id", client.id)
     .eq("sender", "tutor")
     .is("read_at", null);
+
+  // The next session still ahead, wherever it falls, for the card up top.
+  const { data: nextSession } = await admin
+    .from("sessions")
+    .select("id, scheduled_at, duration_minutes")
+    .eq("client_id", client.id)
+    .eq("status", "scheduled")
+    .gte("scheduled_at", new Date(now.getTime() - 2 * 3600000).toISOString())
+    .order("scheduled_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
 
   const { data: sessions } = await admin
     .from("sessions")
@@ -83,7 +102,7 @@ export default async function PortalDashboard({
     const horizonEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
     const busy = await fetchBusyIntervals(admin, now.toISOString(), horizonEnd.toISOString());
     for (const duration of SESSION_DURATIONS_MINUTES) {
-      for (const slot of getAvailableSlots(duration, busy, now)) {
+      for (const slot of getAvailableSlots(duration, busy, now, SESSION_MIN_NOTICE_HOURS)) {
         bookableDateKeys.add(dateKeyFor(slot));
       }
     }
@@ -91,36 +110,74 @@ export default async function PortalDashboard({
 
   const days: ClientCalendarDay[] = dayMeta.map((meta) => ({
     ...meta,
-    isToday: meta.dateKey === dateKeyFor(now),
+    isToday: meta.dateKey === todayKey,
     isBookable: bookableDateKeys.has(meta.dateKey),
     sessions: sessionsByDate.get(meta.dateKey) ?? [],
   }));
 
   return (
     <div className="portal-shell wrap">
+      <LiveRefresh seconds={60} />
       <div className="section-head">
         <h2>Your sessions</h2>
         <p>{user.email}</p>
       </div>
 
-      <div className="portal-head-actions">
-        <Link href="/portal/messages" className="btn btn-secondary" style={{ width: "auto" }}>
-          {unreadMessages ? `Messages (${unreadMessages} new)` : "Ask a question"}
-        </Link>
-      </div>
-
       {booked === "1" && (
-        <p className="notice success" style={{ maxWidth: 480, margin: "0 auto 24px" }}>
+        <p className="notice success portal-banner">
           Booking successful! You&apos;ll be able to join your session 10 minutes before it begins.
         </p>
       )}
 
+      {cancelled === "1" && (
+        <p className="notice portal-banner">
+          Checkout was cancelled, no charge made. Pick a time below whenever you&apos;re ready.
+        </p>
+      )}
+
       {!approved && (
-        <p className="notice" style={{ maxWidth: 480, margin: "0 auto 24px" }}>
+        <p className="notice portal-banner">
           Book a free consultation call on the <Link href="/">main page</Link> to get started. If
           Legg Tutoring is a good fit for your needs, you&apos;ll book sessions on this page.
         </p>
       )}
+
+      <div className="portal-summary">
+        {nextSession ? (
+          <div className="next-card">
+            <span className="next-card-eyebrow">Next session</span>
+            <strong className="next-card-when">
+              {formatDay(new Date(nextSession.scheduled_at))}
+            </strong>
+            <span className="next-card-time">
+              {formatTime(new Date(nextSession.scheduled_at))} &middot; {nextSession.duration_minutes} min
+            </span>
+            <div className="next-card-actions">
+              <Link href={`/portal/session/${nextSession.id}`} className="btn btn-auto btn-sm">
+                Join
+              </Link>
+              <Link
+                href={`/portal/messages?session=${nextSession.id}`}
+                className="btn btn-secondary btn-auto btn-sm"
+              >
+                Message
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="next-card empty">
+            <span className="next-card-eyebrow">Next session</span>
+            <span className="next-card-time">Nothing booked yet.</span>
+          </div>
+        )}
+        <Link href="/portal/messages" className={`inbox-card${unreadMessages ? " has-new" : ""}`}>
+          <span className="next-card-eyebrow">Messages</span>
+          <strong className="next-card-when">
+            {unreadMessages ? `Messages (${unreadMessages} new)` : "Ask a question"}
+          </strong>
+          <span className="inbox-card-arrow" aria-hidden="true">&rarr;</span>
+        </Link>
+      </div>
 
       <ClientCalendarGrid
         days={days}
@@ -130,9 +187,10 @@ export default async function PortalDashboard({
         todayHref="/portal"
         isTodayWindow={windowStartKey === mondayKey}
         approved={approved}
+        todayKey={todayKey}
       />
 
-      <p className="policy-note" style={{ marginTop: 24 }}>
+      <p className="policy-note">
         Cancel your session with at least 24 hours notice for a full refund. If you cancel within
         24 hours, you&apos;ll still receive a full refund for the session with a $10 cancellation
         fee. If your tutor cancels, you&apos;ll be refunded in full automatically.

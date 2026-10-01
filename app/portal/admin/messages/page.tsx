@@ -68,14 +68,14 @@ export default async function AdminMessagesPage() {
       </div>
 
       <div className="session-list">
-        {conversations.length === 0 && <p className="notice">No messages yet.</p>}
+        {conversations.length === 0 && <p className="empty-state">No messages yet.</p>}
         {conversations.map((c) => (
           <Link
             href={`/portal/admin/clients/${c.clientId}#messages`}
             className={`session-row conversation-row${c.unread ? " unread" : ""}`}
             key={c.clientId}
           >
-            <div style={{ minWidth: 0 }}>
+            <div>
               <strong>{c.name}</strong>
               {c.unread > 0 && <span className="unread-badge">{c.unread} new</span>}
               <div className="meta conversation-preview">

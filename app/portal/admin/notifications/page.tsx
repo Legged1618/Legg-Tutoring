@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
+import PushSetup from "@/components/PushSetup";
 import { formatShort, formatWhen } from "@/lib/format";
 
 const LOOKBACK_DAYS = 30;
@@ -121,17 +122,17 @@ export default async function AdminNotificationsPage() {
         </p>
       </div>
 
+      <PushSetup publicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? null} />
+
       <div className="session-list">
-        {activity.length === 0 && <p className="notice">Nothing in the last {LOOKBACK_DAYS} days.</p>}
+        {activity.length === 0 && <p className="empty-state">Nothing in the last {LOOKBACK_DAYS} days.</p>}
         {activity.map((a) => (
           <div className="session-row" key={a.id}>
             <div>
               <strong>{a.href ? <Link href={a.href}>{a.summary}</Link> : a.summary}</strong>
               <div className="meta">{a.detail}</div>
             </div>
-            <div className="meta">
-              {formatShort(new Date(a.at))}
-            </div>
+            <div className="meta session-row-when">{formatShort(new Date(a.at))}</div>
           </div>
         ))}
       </div>

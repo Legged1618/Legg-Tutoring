@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     ],
     metadata: { sessionId: session.id },
     success_url: `${origin}/portal?booked=1`,
-    cancel_url: `${origin}/portal/book?cancelled=1`,
+    cancel_url: `${origin}/portal?cancelled=1`,
   });
 
   await admin

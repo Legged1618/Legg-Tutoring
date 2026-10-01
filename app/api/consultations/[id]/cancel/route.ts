@@ -1,4 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { notifyTutor } from "@/lib/push";
+import { formatShort } from "@/lib/format";
+import { safeNext } from "@/lib/safeNext";
+import { isTutorRequest } from "@/lib/tutorAuth";
 import { createAdminClient } from "@/lib/supabase/server";
 
 // Public on purpose -- consultations don't require login, so the cancel
@@ -14,7 +18,7 @@ export async function POST(
 
   const { data: consultation } = await admin
     .from("consultations")
-    .select("id, status")
+    .select("id, status, full_name, scheduled_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -31,9 +35,19 @@ export async function POST(
 
   await admin.from("consultations").update({ status: "cancelled" }).eq("id", id);
 
+  // Only alert when the client cancelled from their email link, not when
+  // the tutor cancelled from the admin calendar.
+  if (!(await isTutorRequest())) {
+    after(() =>
+      notifyTutor({
+        title: "Consultation cancelled",
+        body: `${consultation.full_name}, was ${formatShort(new Date(consultation.scheduled_at))}`,
+        url: "/portal/admin/calendar",
+      })
+    );
+  }
+
   const next = new URL(request.url).searchParams.get("next");
-  const redirectUrl = next
-    ? new URL(next, request.url)
-    : new URL(`/consultation/cancel/${id}?cancelled=1`, request.url);
+  const redirectUrl = new URL(safeNext(next, `/consultation/cancel/${id}?cancelled=1`), request.url);
   return NextResponse.redirect(redirectUrl, { status: 303 });
 }

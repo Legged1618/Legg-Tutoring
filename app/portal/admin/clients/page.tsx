@@ -23,9 +23,8 @@ function ClientRow({ c }: { c: Record<string, any> }) {
       <form action={`/api/clients/${c.id}/approval`} method="post">
         <input type="hidden" name="approved" value={c.approved ? "false" : "true"} />
         <button
-          className={c.approved ? "btn btn-secondary" : "btn"}
+          className={c.approved ? "btn btn-secondary btn-auto btn-sm" : "btn btn-auto btn-sm"}
           type="submit"
-          style={{ width: "auto" }}
         >
           {c.approved ? "Revoke" : "Approve"}
         </button>
@@ -82,31 +81,31 @@ export default async function AdminClientsPage() {
         <p>Everyone who&apos;s ever logged in or booked a consultation, sorted by where they stand.</p>
       </div>
 
-      <div className="section-head" style={{ marginTop: 8 }}>
+      <div className="section-head sub">
         <h3>Approved for the client portal ({approved.length})</h3>
       </div>
       <div className="session-list">
-        {approved.length === 0 && <p className="notice">No one yet.</p>}
+        {approved.length === 0 && <p className="empty-state">No one yet.</p>}
         {approved.map((c) => (
           <ClientRow c={c} key={c.id} />
         ))}
       </div>
 
-      <div className="section-head" style={{ marginTop: 48 }}>
+      <div className="section-head sub">
         <h3>Booked a consultation, not yet approved ({bookedNotApproved.length})</h3>
       </div>
       <div className="session-list">
-        {bookedNotApproved.length === 0 && <p className="notice">No one yet.</p>}
+        {bookedNotApproved.length === 0 && <p className="empty-state">No one yet.</p>}
         {bookedNotApproved.map((c) => (
           <ClientRow c={c} key={c.id} />
         ))}
       </div>
 
-      <div className="section-head" style={{ marginTop: 48 }}>
+      <div className="section-head sub">
         <h3>Signed up only, no consultation on file ({signedUpOnly.length})</h3>
       </div>
       <div className="session-list">
-        {signedUpOnly.length === 0 && <p className="notice">No one yet.</p>}
+        {signedUpOnly.length === 0 && <p className="empty-state">No one yet.</p>}
         {signedUpOnly.map((c) => (
           <ClientRow c={c} key={c.id} />
         ))}

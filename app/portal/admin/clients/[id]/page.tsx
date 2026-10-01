@@ -65,7 +65,7 @@ export default async function AdminClientPage({
   return (
     <div className="portal-shell wrap">
       <AdminTabs />
-      <p style={{ maxWidth: 720, margin: "0 auto 12px" }}>
+      <p className="back-link-row">
         <Link href="/portal/admin/clients" className="cal-today-link">
           &larr; All clients
         </Link>
@@ -73,7 +73,7 @@ export default async function AdminClientPage({
 
       <div className="session-row client-summary">
         <div>
-          <h2 style={{ fontSize: "1.5rem" }}>{client.full_name || "(no name on file)"}</h2>
+          <h2>{client.full_name || "(no name on file)"}</h2>
           <div className="meta">
             <a href={`mailto:${client.email}`}>{client.email}</a>
             {client.phone ? (
@@ -92,7 +92,7 @@ export default async function AdminClientPage({
         </div>
         <form action={`/api/clients/${client.id}/approval?next=${encodeURIComponent(selfHref)}`} method="post">
           <input type="hidden" name="approved" value={client.approved ? "false" : "true"} />
-          <button className={client.approved ? "btn btn-secondary" : "btn"} type="submit" style={{ width: "auto" }}>
+          <button className={client.approved ? "btn btn-secondary btn-auto" : "btn btn-auto"} type="submit">
             {client.approved ? "Revoke" : "Approve"}
           </button>
         </form>
@@ -109,7 +109,7 @@ export default async function AdminClientPage({
               defaultValue={client.tutor_notes ?? ""}
               placeholder="Topics covered, where they're struggling, what to try next..."
             />
-            <button className="btn" type="submit" style={{ width: "auto" }}>
+            <button className="btn btn-auto" type="submit">
               Save notes
             </button>
             {saved === "notes" && <span className="saved-flag">Saved</span>}
@@ -128,11 +128,11 @@ export default async function AdminClientPage({
         </section>
       </div>
 
-      <div className="section-head" style={{ marginTop: 40, marginBottom: 16 }}>
+      <div className="section-head sub">
         <h3>Upcoming sessions ({upcoming.length})</h3>
       </div>
       <div className="session-list">
-        {upcoming.length === 0 && <p className="notice">None booked.</p>}
+        {upcoming.length === 0 && <p className="empty-state">None booked.</p>}
         {upcoming.map((s) => (
           <div className="session-row" key={s.id}>
             <div>
@@ -142,7 +142,7 @@ export default async function AdminClientPage({
               </div>
             </div>
             {s.status === "scheduled" && (
-              <Link href={`/portal/session/${s.id}`} className="btn" style={{ width: "auto" }}>
+              <Link href={`/portal/session/${s.id}`} className="btn btn-auto">
                 Open room
               </Link>
             )}
@@ -150,11 +150,11 @@ export default async function AdminClientPage({
         ))}
       </div>
 
-      <div className="section-head" style={{ marginTop: 40, marginBottom: 16 }}>
+      <div className="section-head sub">
         <h3>Past and cancelled sessions ({past.length})</h3>
       </div>
       <div className="session-list">
-        {past.length === 0 && <p className="notice">None yet.</p>}
+        {past.length === 0 && <p className="empty-state">None yet.</p>}
         {past.map((s) => (
           <div className="session-row resolved" key={s.id}>
             <div>
@@ -167,11 +167,11 @@ export default async function AdminClientPage({
         ))}
       </div>
 
-      <div className="section-head" style={{ marginTop: 40, marginBottom: 16 }}>
+      <div className="section-head sub">
         <h3>Consultations ({(consultations ?? []).length})</h3>
       </div>
       <div className="session-list">
-        {(consultations ?? []).length === 0 && <p className="notice">No consultation on file.</p>}
+        {(consultations ?? []).length === 0 && <p className="empty-state">No consultation on file.</p>}
         {((consultations ?? []) as Record<string, any>[]).map((c) => (
           <div className="session-row" key={c.id}>
             <div>

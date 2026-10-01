@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeNext } from "@/lib/safeNext";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { TUTOR_TIMEZONE, zonedWallTimeToUtc, shiftDateKey } from "@/lib/availability";
 
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
   });
 
   const next = new URL(request.url).searchParams.get("next");
-  return NextResponse.redirect(new URL(next || "/portal/admin/calendar", request.url), {
+  return NextResponse.redirect(new URL(safeNext(next, "/portal/admin/calendar"), request.url), {
     status: 303,
   });
 }
