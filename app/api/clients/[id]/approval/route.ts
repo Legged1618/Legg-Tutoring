@@ -30,5 +30,8 @@ export async function POST(
     .update({ approved, approved_at: approved ? new Date().toISOString() : null })
     .eq("id", id);
 
-  return NextResponse.redirect(new URL("/portal/admin/clients", request.url), { status: 303 });
+  // Same-site paths only, so the form can send you back to a client's page.
+  const next = new URL(request.url).searchParams.get("next");
+  const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/portal/admin/clients";
+  return NextResponse.redirect(new URL(target, request.url), { status: 303 });
 }

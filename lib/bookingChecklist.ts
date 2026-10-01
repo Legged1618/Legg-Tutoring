@@ -7,7 +7,7 @@ export function buildConsultationChecklist(
   return [
     "To do:",
     scriptUrl ? `☐ Open the call script: ${scriptUrl}` : "☐ Open your call script",
-    `☐ Call/video with ${c.full_name} at the scheduled time`,
+    `☐ Call ${c.full_name} at the scheduled time`,
     "☐ Afterward, mark \"Good fit\" or \"Not a fit\" in the Consultations tab",
     "",
     `Contact: ${c.email}${c.phone ? ` · ${c.phone}` : ""}`,

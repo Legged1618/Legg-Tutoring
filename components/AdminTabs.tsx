@@ -20,7 +20,11 @@ export default function AdminTabs() {
         <Link
           key={tab.href}
           href={tab.href}
-          className={`admin-tab${pathname === tab.href ? " active" : ""}`}
+          className={`admin-tab${
+            pathname === tab.href || (tab.href !== "/portal/admin" && pathname.startsWith(`${tab.href}/`))
+              ? " active"
+              : ""
+          }`}
         >
           {tab.label}
         </Link>

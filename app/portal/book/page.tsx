@@ -14,16 +14,17 @@ export default async function BookSessionPage({
           <h1>Book a session</h1>
           {cancelled === "1" && (
             <p className="notice" style={{ marginBottom: 16 }}>
-              Checkout was cancelled &mdash; no charge was made. Pick a time below whenever
-              you&apos;re ready.
+              Checkout was cancelled, no charge made. Pick a time below whenever you&apos;re
+              ready.
             </p>
           )}
           <SessionBooking />
           <p className="policy-note">
-            $65/hour, virtual only. Payment is collected now, before the
-            session. Cancel 24+ hours out for a full refund; inside 24 hours a
-            flat $10 fee applies. If your tutor cancels, you&apos;re refunded
-            in full automatically.
+            Sessions are $65 an hour. Cancel your session with at least 24 hours
+            notice for a full refund. If you cancel within 24 hours, you&apos;ll
+            still receive a full refund for the session with a $10 cancellation
+            fee. If your tutor cancels, you&apos;ll be refunded in full
+            automatically.
           </p>
         </div>
       </div>

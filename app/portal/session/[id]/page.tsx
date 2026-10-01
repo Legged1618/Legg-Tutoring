@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { joinWindowState, launchSpace } from "@/lib/lessonspace";
 import SessionRoom from "@/components/SessionRoom";
+import { TUTOR_NAME } from "@/lib/tutor";
 
 export default async function SessionRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -50,7 +51,7 @@ export default async function SessionRoomPage({ params }: { params: Promise<{ id
           spaceId: `session-${session.id}`,
           spaceName: `Legg Tutoring: ${clientLabel}`,
           user: isTutor
-            ? { id: "tutor", name: "Tutor", email: user.email, leader: true }
+            ? { id: "tutor", name: TUTOR_NAME, email: user.email, leader: true }
             : { id: user.id, name: clientLabel, email: client?.email, leader: false },
         })
       : null;

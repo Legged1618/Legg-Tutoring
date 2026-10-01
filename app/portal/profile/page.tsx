@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
+import { TUTOR_NAME } from "@/lib/tutor";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -25,8 +27,7 @@ export default async function ProfilePage() {
           </div>
           <div className="portal-card" style={{ maxWidth: 480, margin: "0 auto" }}>
             <p className="notice">
-              Signed in as <strong>{user.email}</strong> (Admin) &mdash; this account doesn&apos;t
-              have a client profile.
+              Welcome, {TUTOR_NAME}. <Link href="/portal/admin">Go to the admin portal</Link>.
             </p>
           </div>
         </div>
@@ -42,7 +43,7 @@ export default async function ProfilePage() {
       <div className="portal-shell wrap">
         <div className="section-head">
           <h2>Profile</h2>
-          <p>Your contact info &mdash; used for session reminders and the occasional message.</p>
+          <p>Your contact info</p>
         </div>
         <form
           action="/api/profile"

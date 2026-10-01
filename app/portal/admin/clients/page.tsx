@@ -1,18 +1,22 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
+import { formatDate } from "@/lib/format";
 
 function ClientRow({ c }: { c: Record<string, any> }) {
   return (
     <div className="session-row">
       <div>
-        <strong>{c.full_name || "(no name on file)"}</strong>
+        <strong>
+          <Link href={`/portal/admin/clients/${c.id}`}>{c.full_name || "(no name on file)"}</Link>
+        </strong>
         <div className="meta">
           {c.email}
           {c.phone ? ` · ${c.phone}` : ""}
         </div>
         <div className="meta">
-          Signed up {new Date(c.created_at).toLocaleDateString()}
+          Signed up {formatDate(new Date(c.created_at))}
           {c.auth_user_id ? "" : " · never logged in"}
         </div>
       </div>

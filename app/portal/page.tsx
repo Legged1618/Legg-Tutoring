@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
 import { fetchBusyIntervals } from "@/lib/busyIntervals";
-import { SESSION_DURATIONS_MINUTES, TUTOR_TIMEZONE, getAvailableSlots } from "@/lib/availability";
+import { BOOKING_WINDOW_DAYS, SESSION_DURATIONS_MINUTES, TUTOR_TIMEZONE, getAvailableSlots } from "@/lib/availability";
 import { computeCalendarWindow, dateKeyFor } from "@/lib/calendarWindow";
 import ClientCalendarGrid, { type ClientCalendarDay } from "@/components/ClientCalendarGrid";
 
@@ -72,7 +73,7 @@ export default async function PortalDashboard({
   // relative to "now", not to the page being viewed.
   const bookableDateKeys = new Set<string>();
   if (approved) {
-    const horizonEnd = new Date(now.getTime() + 14 * 86400000);
+    const horizonEnd = new Date(now.getTime() + BOOKING_WINDOW_DAYS * 86400000);
     const busy = await fetchBusyIntervals(admin, now.toISOString(), horizonEnd.toISOString());
     for (const duration of SESSION_DURATIONS_MINUTES) {
       for (const slot of getAvailableSlots(duration, busy, now)) {
@@ -97,14 +98,14 @@ export default async function PortalDashboard({
 
       {booked === "1" && (
         <p className="notice success" style={{ maxWidth: 480, margin: "0 auto 24px" }}>
-          Payment received &mdash; your session is booked!
+          Booking successful! You&apos;ll be able to join your session 10 minutes before it begins.
         </p>
       )}
 
       {!approved && (
         <p className="notice" style={{ maxWidth: 480, margin: "0 auto 24px" }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua.
+          Book a free consultation call on the <Link href="/">main page</Link> to get started. If
+          Legg Tutoring is a good fit for your needs, you&apos;ll book sessions on this page.
         </p>
       )}
 
@@ -119,9 +120,9 @@ export default async function PortalDashboard({
       />
 
       <p className="policy-note" style={{ marginTop: 24 }}>
-        Cancel 24+ hours before your session for a full refund. Cancelling inside 24 hours applies
-        a flat $10 fee to the refund. If your tutor cancels, you&apos;re refunded in full
-        automatically.
+        Cancel your session with at least 24 hours notice for a full refund. If you cancel within
+        24 hours, you&apos;ll still receive a full refund for the session with a $10 cancellation
+        fee. If your tutor cancels, you&apos;ll be refunded in full automatically.
       </p>
     </div>
   );

@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Legg Tutoring",
-  description: "Mathematics, personalized.",
+  description: "Personalized Math Help",
 };
 
 export default function RootLayout({

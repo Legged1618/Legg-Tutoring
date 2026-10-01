@@ -513,6 +513,10 @@ footer {
 }
 
 .session-row .meta { color: var(--ink-soft); font-size: 0.9rem; }
+.session-row.resolved { border-left-color: var(--rule); }
+.session-row strong a { text-decoration: none; }
+.session-row strong a:hover { text-decoration: underline; }
+.client-summary { max-width: 720px; margin: 0 auto; }
 
 /* Consultation booking widget */
 .slot-picker {
@@ -775,16 +779,20 @@ footer {
   border-top: none;
 }
 
-.cal-detail-checklist {
+.cal-detail-panel .meta { color: var(--ink-soft); font-size: 0.9rem; }
+
+.cal-payment {
+  display: inline-block;
   margin-top: 12px;
-  font-family: inherit;
   font-size: 0.9rem;
-  color: var(--ink-soft);
-  white-space: pre-line;
+  font-weight: 600;
+  color: var(--teal);
   background: var(--paper);
   border-radius: 6px;
-  padding: 12px 14px;
+  padding: 6px 12px;
 }
+
+.cal-payment.unpaid { color: var(--brass); }
 
 .cal-action-row {
   display: flex;

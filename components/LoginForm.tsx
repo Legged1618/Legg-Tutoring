@@ -26,8 +26,7 @@ export default function LoginForm() {
     <div className="portal-card">
       <h1>Client Portal</h1>
       <p className="notice">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua.
+        Enter your email to receive a one-time login link.
       </p>
       <form onSubmit={handleSubmit} style={{ marginTop: 22 }}>
         <div className="field">
