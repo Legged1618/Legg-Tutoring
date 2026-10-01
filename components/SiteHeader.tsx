@@ -27,11 +27,14 @@ export default async function SiteHeader() {
   if (!user) {
     return (
       <header>
-        <nav className="nav" style={{ justifyContent: "space-between" }}>
+        <nav className="nav nav-split">
           <Link href="/" className="wordmark">
             Legg Tutoring
           </Link>
           <div className="nav-links">
+            <Link href="/about" className="nav-hide-sm">
+              About
+            </Link>
             <Link href="/consultation">Book a consultation</Link>
             <Link href="/portal/login">Client login</Link>
           </div>
@@ -59,11 +62,16 @@ export default async function SiteHeader() {
 
   return (
     <header>
-      <nav className="nav" style={{ justifyContent: "space-between" }}>
+      <nav className="nav nav-split">
         <Link href="/" className="wordmark">
           Legg Tutoring
         </Link>
-        <AccountMenu email={user.email ?? ""} displayName={displayName} isTutor={isTutor} />
+        <div className="nav-links">
+          <Link href="/about" className="nav-hide-sm">
+            About
+          </Link>
+          <AccountMenu email={user.email ?? ""} displayName={displayName} isTutor={isTutor} />
+        </div>
       </nav>
     </header>
   );

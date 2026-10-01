@@ -3,7 +3,7 @@ import { formatWhen } from "@/lib/format";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getOrCreateClientForUser } from "@/lib/clients";
 import { stripe } from "@/lib/stripe";
-import { PRICING } from "@/lib/pricing";
+import { PRICING, sessionPriceCents } from "@/lib/pricing";
 import {
   BOOKING_WINDOW_DAYS,
   SESSION_DURATIONS_MINUTES,
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const rateCents = Math.round((PRICING.virtualHourlyRateCents * durationMinutes) / 60);
+  const rateCents = sessionPriceCents(durationMinutes);
 
   const { data: session, error: insertError } = await admin
     .from("sessions")
