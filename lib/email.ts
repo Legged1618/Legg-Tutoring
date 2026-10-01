@@ -75,8 +75,9 @@ export type SessionDetails = {
   clientPhone: string | null;
 };
 
-export async function sendSessionConfirmationToClient(s: SessionDetails) {
+export async function sendSessionConfirmationToClient(s: SessionDetails, origin: string) {
   const when = formatWhen(s.scheduledAt);
+  const roomUrl = `${origin}/portal/session/${s.id}`;
   await getResend().emails.send({
     from: fromAddress(),
     to: s.clientEmail,
@@ -87,7 +88,11 @@ Your ${s.durationMinutes}-minute virtual tutoring session is confirmed and paid 
 
 ${when}
 
-You'll receive a video call link before the session. To cancel or reschedule, sign into your portal at any time -- cancelling 24+ hours out gets a full refund, inside 24 hours a $10 flat fee applies.
+At the scheduled time, join your session here (it opens 10 minutes early, right in your browser):
+
+${roomUrl}
+
+To cancel or reschedule, sign into your portal at any time -- cancelling 24+ hours out gets a full refund, inside 24 hours a $10 flat fee applies.
 
 See you then,
 Legg Tutoring`,

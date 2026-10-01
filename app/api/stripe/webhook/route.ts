@@ -61,7 +61,7 @@ export async function POST(request: Request) {
           clientPhone: client?.phone ?? null,
         };
         try {
-          await sendSessionConfirmationToClient(details);
+          await sendSessionConfirmationToClient(details, new URL(request.url).origin);
         } catch (err) {
           console.error("Session confirmation email failed to send", err);
         }

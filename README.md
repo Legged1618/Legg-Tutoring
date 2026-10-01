@@ -61,14 +61,23 @@ Every scheduled consultation and paid session is available as a private ICS feed
 
 This is one-way and read-only by design: it shows what's booked, but cancelling/editing still happens through the portal or admin, not by touching the calendar event itself. Each event's description includes the client's contact info and (for consultations) the `CALL_SCRIPT_URL` link.
 
-### 5. Vercel (hosting) — free for this size of site
+### 5. Lessonspace (live session room) — from $9/month
+
+Each paid session has its own Lessonspace room (two-way video and voice, plus a shared whiteboard with math tools that both sides can write on), embedded on the site at `/portal/session/<id>` (login required; linked from the portal calendar and the confirmation email). Free consultations are phone calls and don't get a room. Clients don't need a Lessonspace account. The room opens to the client 10 minutes before the start; the tutor can open it any time to set up the board, and joins as the room's leader.
+
+1. Sign up at [thelessonspace.com](https://www.thelessonspace.com/pricing) (Basic is $9/month for 10 session hours; every plan includes the API).
+2. Copy your organisation's API key into `LESSONSPACE_API_KEY`.
+
+Rooms are created on demand from the booking id, so there's nothing to store or migrate. If the key is missing or Lessonspace is down, the join page says the room isn't ready and bookings still work.
+
+### 6. Vercel (hosting) — free for this size of site
 
 1. Create an account at [vercel.com](https://vercel.com) and import this GitHub repo.
 2. Add every variable from `.env.example` as an Environment Variable in the Vercel project settings.
 3. Deploy.
 4. To use leggtutoring.com, add it under **Settings > Domains** in Vercel and update your DNS at your registrar to point at Vercel instead of GitHub Pages (the old `CNAME` file was for GitHub Pages and has been removed).
 
-### 6. Rates and availability
+### 7. Rates and availability
 
 - `lib/pricing.ts` — `virtualHourlyRateCents` (currently 6500 = $65/hr) and `lateCancelFlatFeeCents` (currently 1000 = $10), both in cents.
 - `lib/availability.ts` — edit `WEEKLY_AVAILABILITY` to your real working hours (day of week + start/end time, in `TUTOR_TIMEZONE`). Applies to both consultations and paid sessions.
