@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { formatWhen } from "@/lib/format";
+import { consultationMeetingUrl } from "@/lib/consultationMeeting";
 
 let resendClient: Resend | null = null;
 
@@ -36,15 +37,25 @@ export async function sendConsultationConfirmationToClient(
 ) {
   const when = formatWhen(c.scheduledAt);
   const cancelUrl = `${origin}/consultation/cancel/${c.id}`;
+  const meetingUrl = consultationMeetingUrl();
+  const joinText = meetingUrl
+    ? `Join the video call here at the scheduled time:
+
+${meetingUrl}
+
+It works on a laptop, tablet or phone with a camera.`
+    : "You'll get the video call link by email before the call. It works on a laptop, tablet or phone with a camera.";
   await getResend().emails.send({
     from: fromAddress(),
     to: c.email,
     subject: "Your free consultation is booked — Legg Tutoring",
     text: `Hi ${c.fullName},
 
-Your free 15-minute consultation call is confirmed for:
+Your free 15-minute consultation is confirmed for:
 
 ${when}
+
+${joinText}
 
 We'll cover what you're looking for help with and whether it's a good fit. If you need to cancel, use this link:
 

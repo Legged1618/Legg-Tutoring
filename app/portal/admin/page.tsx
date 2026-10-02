@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminTabs from "@/components/AdminTabs";
 import { formatWhen } from "@/lib/format";
+import { consultationMeetingUrl } from "@/lib/consultationMeeting";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -27,6 +28,7 @@ export default async function AdminPage() {
     );
   }
 
+  const meetingUrl = consultationMeetingUrl();
   const admin = createAdminClient();
   const { data: pending } = await admin
     .from("consultations")
@@ -59,6 +61,11 @@ export default async function AdminPage() {
                 {c.subject && <div className="meta">Subject: {c.subject}</div>}
               </div>
               <div className="row-actions">
+                {meetingUrl && (
+                  <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className="btn btn-auto btn-sm">
+                    Join call
+                  </a>
+                )}
                 <form action={`/api/consultations/${c.id}/outcome`} method="post">
                   <input type="hidden" name="outcome" value="good_fit" />
                   <button className="btn btn-auto btn-sm" type="submit">

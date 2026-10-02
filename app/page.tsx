@@ -174,7 +174,7 @@ export default async function HomePage() {
                       <span className="eyebrow">How it works</span>
                       <h2 className="hero-title">From first call to first session</h2>
                       <p className="lede">
-                        A free phone call, a calendar to pick your times, and a private online room
+                        A free video call, a calendar to pick your times, and a private online room
                         for every session.
                       </p>
                       <div className="hero-cta-row">
@@ -399,7 +399,7 @@ export default async function HomePage() {
             <Reveal className="price-card">
               <span className="price-label">Consultation</span>
               <div className="price-amount">Free</div>
-              <p className="price-sub">15-minute phone call</p>
+              <p className="price-sub">15-minute video call</p>
               <ul className="check-list">
                 <li>Talk through goals and where things stand</li>
                 <li>See if we&apos;re a good fit</li>

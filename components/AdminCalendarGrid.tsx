@@ -20,6 +20,8 @@ export type CalendarEntry = {
   clientEmail?: string;
   clientPhone?: string;
   roomHref?: string;
+  /** Consultations only: the video call link. */
+  meetingHref?: string;
   clientHref?: string;
   subject?: string;
   notes?: string;
@@ -286,6 +288,12 @@ export default function AdminCalendarGrid({
               <Link href={selectedEntry.roomHref} className="btn btn-auto">
                 Open room
               </Link>
+            )}
+
+            {selectedEntry.meetingHref && selectedEntry.status === "scheduled" && (
+              <a href={selectedEntry.meetingHref} target="_blank" rel="noopener noreferrer" className="btn btn-auto">
+                Join call
+              </a>
             )}
 
             {selectedEntry.clientHref && (
