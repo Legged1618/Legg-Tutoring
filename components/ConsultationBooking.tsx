@@ -15,7 +15,6 @@ export default function ConsultationBooking() {
   const [selected, setSelected] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [subject, setSubject] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "error" | "done">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -48,7 +47,6 @@ export default function ConsultationBooking() {
       body: JSON.stringify({
         fullName,
         email,
-        phone,
         subject,
         scheduledAt: selected,
       }),
@@ -72,7 +70,7 @@ export default function ConsultationBooking() {
   if (status === "done") {
     return (
       <p className="notice success">
-        You&apos;re booked! Check your email for the details.
+        You&apos;re booked! Check your email for the video call link.
       </p>
     );
   }
@@ -175,10 +173,6 @@ export default function ConsultationBooking() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-            </div>
-            <div className="field">
-              <label htmlFor="phone">Phone (optional)</label>
-              <input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div className="field">
               <label htmlFor="subject">What do you need help with?</label>

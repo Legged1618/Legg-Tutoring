@@ -5,6 +5,7 @@ import AdminCalendarGrid, { type CalendarDay, type CalendarEntry } from "@/compo
 import { TUTOR_TIMEZONE } from "@/lib/availability";
 import { sessionPaymentLabel } from "@/lib/format";
 import { computeCalendarWindow, dateKeyFor } from "@/lib/calendarWindow";
+import { consultationMeetingUrl } from "@/lib/consultationMeeting";
 
 // A multiple of 7 -- keeps Previous/Next always landing on a Monday,
 // instead of drifting off the week grid a couple days at a time.
@@ -44,6 +45,7 @@ export default async function AdminCalendarPage({
   const rangeStart = boundaries[0].toISOString();
   const rangeEnd = boundaries[WINDOW_DAYS].toISOString();
   const scriptUrl = process.env.CALL_SCRIPT_URL;
+  const meetingUrl = consultationMeetingUrl();
 
   const admin = createAdminClient();
   const [{ data: consultations }, { data: sessions }, { data: timeOff }, { data: clientRows }] = await Promise.all([
@@ -98,6 +100,7 @@ export default async function AdminCalendarPage({
       outcome: c.outcome,
       clientEmail: c.email,
       clientPhone: c.phone,
+      meetingHref: meetingUrl ?? undefined,
       clientHref: clientIdByEmail.has(c.email) ? `/portal/admin/clients/${clientIdByEmail.get(c.email)}` : undefined,
       subject: c.subject ?? undefined,
       notes: c.notes ?? undefined,
